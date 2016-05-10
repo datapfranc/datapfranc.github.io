@@ -9,9 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-    <link href="http://datapfranc.github.io/images/favicon.ico" rel="icon">
+    <link href="/images/favicon.ico" rel="icon">
 
-<link rel="canonical" href="http://datapfranc.github.io/brd/BRD-data-integration_part1/">
+<link rel="canonical" href="/brd/BRD-data-integration_part1/">
 
         <meta name="author" content="Martin Ouellet" />
         <meta name="keywords" content="data integration,model,dataset,BRD" />
@@ -20,19 +20,17 @@
 
 
     <!-- Bootstrap -->
-        <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
-    <link href="http://datapfranc.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
 
-    <link href="http://datapfranc.github.io/theme/css/pygments/monokai.css" rel="stylesheet">
-    <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/style.css" type="text/css"/>
-        <link href="http://datapfranc.github.io/static/custom.css" rel="stylesheet">
+    <link href="/theme/css/pygments/monokai.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+        <link href="/static/custom.css" rel="stylesheet">
 
-        <link href="http://datapfranc.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
-              title="DataPlatform Franchising ATOM Feed"/>
 
 </head>
 <body>
-<!-- <script src="http://datapfranc.github.io/theme/js/jquery.min.js"></script> -->
+<!-- <script src="/theme/js/jquery.min.js"></script> -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -44,23 +42,23 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="http://datapfranc.github.io/" class="navbar-brand">
-<img src="http://datapfranc.github.io/images/logo.png" width="36"/> DataPlatform Franchising            </a>
+            <a href="/" class="navbar-brand">
+<img src="/images/logo.png" width="36"/> DataPlatform Franchising            </a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
-                         <li><a href="http://datapfranc.github.io/about.html">
+                         <li><a href="/about.html">
                              About
                           </a></li>
-                         <li><a href="http://datapfranc.github.io/context.html">
+                         <li><a href="/context.html">
                              Context
                           </a></li>
                         <li class="active">
-                            <a href="http://datapfranc.github.io/category/brd.html">Brd</a>
+                            <a href="/category/brd.html">Brd</a>
                         </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="http://datapfranc.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+                <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -82,22 +80,22 @@
     </span>
 
         <span class="label label-default">Category</span>
-        <a href="http://datapfranc.github.io/category/brd.html">BRD</a>
+        <a href="/category/brd.html">BRD</a>
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://datapfranc.github.io/tags/data-integration.html">data integration</a>
+	<a href="/tags/data-integration.html">data integration</a>
         /
-	<a href="http://datapfranc.github.io/tags/model.html">model</a>
+	<a href="/tags/model.html">model</a>
         /
-	<a href="http://datapfranc.github.io/tags/dataset.html">dataset</a>
+	<a href="/tags/dataset.html">dataset</a>
         /
-	<a href="http://datapfranc.github.io/tags/brd.html">BRD</a>
+	<a href="/tags/brd.html">BRD</a>
     
 </footer><!-- /.post-info -->              <!-- </div> -->
             </div>
             <h1 class="entry-title">
-                <a href="http://datapfranc.github.io/brd/BRD-data-integration_part1/"
+                <a href="/brd/BRD-data-integration_part1/"
                 rel="bookmark"
                 title="Permalink to How to do data integration, the BRD example">
                     How to do data integration, the BRD example
@@ -113,7 +111,7 @@
 <p>Let's say I want to report on book reviews/rating done by users of these cool social media sites <a href="https://librarything.com">librarything</a>, <a href="https://goodreads.com">goodreads</a> or <a href="http:babelio">babelio</a>. Note: I really enjoy spending time (procrastinating) on these book review sites, so my first dataset choice was deliberate knowing how important personal interest is to stay motivated). </p>
 <p>So how should we proceed?</p>
 <p>First, we need proper data model for both reference data (book title, authors, isbn...) and review data (rating, text).  There are other important decisions like etl/pipeline design, data quality, ..but I'll stick to data modelling here. Data modelling is done by 1) identity important business entity (ex. Author, Work, Isbn..), 2) define common entity used for integration along with candidate keys, 3) identify links/relationship between them, 4) identify descriptive attribute, .  </p>
-<p><a href="http://datapfranc.github.io/images/blog/BRD_model.jpeg">Model Image</a></p>
+<p><a href="/images/blog/BRD_model.jpeg">Model Image</a></p>
 <p>Let's discuss a few aspect.  First, integration is done through common Entity, i.e. Book.  Book is a generic term and we can't affort to be loose especially related to "granularity" of entity.  Amazon records reviews at book edition level, but probably more appropriate to record them at <strong>Work</strong> level (<a href="https://www.librarything.com/concepts">concept</a>). </p>
 <p>Next is defining natural-key for Work allowing the integration of reviews (done on same Work entity) across sits.  For that, we could choose Work's Title/Author as a composite key and face issues like spelling differences and other titles translated in different languages. A much better alternative is to use ISBN which is meant to uniquely identify editions of same work. And it turns out Lt generously produces an export called <a href="http://www.librarything.com/wiki/index.php/LibraryThing_APIs">thingISBN.xml</a> available for non-commercial use.  This gives a list ISBN's belonging to Lt's Work entity (yet another by-product of work done collaboratively through social media). </p>
 <p>So Reviews from any site can be harvested by looking up its ISBN(s) and linked together through the Lt's Work-id key lookup. This implies Lt becoming the master data source for Work.</p>
@@ -244,19 +242,18 @@
                 <li class="list-group-item"><a href="http://linkedin.com/in/martinouellet"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
                 <li class="list-group-item"><a href="https://plus.google.com/102425100151107773886/posts"><i class="fa fa-google-plus-square fa-lg"></i> google+</a></li>
                 <li class="list-group-item"><a href="http://martin-ouellet.blogspot.ch/"><i class="fa fa-personal-blog-square fa-lg"></i> Personal blog</a></li>
-                <li class="list-group-item"><a href="http://datapfranc.github.io/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
               </ul>
             </li>
 
             <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Recent Posts</span></h4>
                 <ul class="list-group" id="recentposts">
                     <li class="list-group-item">
-                        <a href="http://datapfranc.github.io/brd/brd-intro/">
+                        <a href="/brd/brd-intro/">
                             Book Reviews Dataset
                         </a>
                     </li>
                     <li class="list-group-item">
-                        <a href="http://datapfranc.github.io/brd/BRD-data-integration_part1/">
+                        <a href="/brd/BRD-data-integration_part1/">
                             How to do data integration, the BRD example
                         </a>
                     </li>
@@ -264,7 +261,7 @@
             </li>
 
 
-            <li class="list-group-item"><a href="http://datapfranc.github.io/tags.html"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+            <li class="list-group-item"><a href="/tags.html"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
                 <ul class="list-group " id="tags">
                 </ul>
             </li>
@@ -360,13 +357,13 @@
               <!-- <g:plusone size="standard(bubble)" data-href="http://the-data-show.com"></g:plusone> -->
               <br>
               <h3>Share DataPlatform Franchising</h3>
-                <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="http://datapfranc.github.io" addthis:title="Check out DataPlatform Franchising!">
+                <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="" addthis:title="Check out DataPlatform Franchising!">
                   <a class="addthis_button_facebook"></a>
                   <a class="addthis_button_twitter"></a>
                   <a class="addthis_button_google_plusone_share"></a>
                   <a class="addthis_button_email"></a>
                   <a class="addthis_button_linkedin"></a>
-                  <a class="addthis_button_rss_follow" addthis:userid="http://datapfranc.github.io/feeds/all.atom.xml"></a>
+                  <a class="addthis_button_rss_follow" addthis:userid="/feeds/all.atom.xml"></a>
                   <a class="addthis_button_compact"></a>
                 </div>
                 <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-572cd8ecd555b197"></script>
@@ -395,14 +392,14 @@
    </div>
 </footer>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="http://datapfranc.github.io/theme/js/bootstrap.min.js"></script>
+<script src="/theme/js/bootstrap.min.js"></script>
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-<script src="http://datapfranc.github.io/theme/js/respond.min.js"></script>
+<script src="/theme/js/respond.min.js"></script>
 
 <!-- Fix scrolling issues to internal HREFs that get positioned behind navbar -->
 <!-- http://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header -->
-<script src="http://datapfranc.github.io/theme/js/href_scroll.js"></script>
+<script src="/theme/js/href_scroll.js"></script>
 
 
 </body>
