@@ -105,7 +105,7 @@
 <p>First we notice that our physical data model is not a simple map from our high-level logical model, and more tables (than entities) exist. That's a choice by design, and will allow us to extend and grow our model organically as we discover new attributes and new relationship relevant as the experimentation evolve. Interested reader could refer to methods like <a href="https://en.wikipedia.org/wiki/Data_Vault_Modeling">Data Vault</a> or <a href="http://www.anchormodeling.com/?page_id=2">Anchor Modeling</a>.  </p>
 <p>To explain the detail of physical data model, better let the code speaks for itself.  Although SQL is not well suited for self-documented code, most DB engines support explicit comment.</p>
 <h3 id="staging-layer">Staging layer</h3>
-<p>This is where data is landing once extracted from source. It is raw (no transformation), volatile (truncated before new load) and designed for fast loading (bulk loading to limit impact on system sources). This is also a good place to manage logistics/auditing aspect of loads.</p>
+<p>This is where data is landing once extracted from source. It is raw (no transformation), volatile (truncated before new load) and designed for speed (bulk loading) to limit impact on system sources. This is also a good place to manage logistics/auditing aspect of loads.</p>
 <div class="highlight"><pre><span></span><span class="c1">------------------------------------------ Staging layer -----------------------------------------------</span>
 <span class="c1">--------------------------------------------------------------------------------------------------------</span>
 <span class="c1">-- Goal: - Layer where raw data is bulk loaded from source used by integration ELT steps</span>
@@ -192,7 +192,8 @@
 
 
 <h3 id="integration-raw-layer">Integration --Raw Layer</h3>
-<p>Integration/raw layer is where we ... well integrate data! Besides this pleonasm, the important concept is to identify common business entities that conformed across sources and have common identifiers. Let's see what we got:</p>
+<p>Integration/raw layer is where we ... well integrate data! Behind this pleonasm, integration from multi-source can only happen with common business entities conforming through equivalent identifiers across sources. We've discussed this previously with the choice of ISBN to be used as "anchor" between source.  </p>
+<p>We can also observe the multiplication of tables. During integration, we favor higher normalized structure, but we'll likely change that downstream when it comes time to present the data for reporting purposes.  For example, storing user's attributes into dedicated tables (<code>user_info</code>) , so we can later add a bunch or decide to track historical changes (<code>user_</code>) without affecting existing structure.</p>
 <div class="highlight"><pre><span></span><span class="c1">------------------------------------------ Integration layer -------------------------------------------</span>
 <span class="c1">--------------------------------------------------------------------------------------------------------</span>
 <span class="c1">-- Two sub-layers:</span>
@@ -428,59 +429,6 @@
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">.</span><span class="n">user_uid</span> <span class="k">is</span> <span class="s1">&#39;Site system-generated id to identify the user if present,(more stable than username), otherwise same as username)&#39;</span><span class="p">;</span>
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">.</span><span class="n">username</span> <span class="k">is</span> <span class="s1">&#39;Username or pseudo associated to the user&#39;</span><span class="p">;</span>
 
-<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_info</span> <span class="p">(</span>
-    <span class="n">user_id</span> <span class="n">uuid</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
-    <span class="n">full_name</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">birth_text</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">birth_date</span> <span class="nb">date</span><span class="p">,</span>
-    <span class="n">gender</span> <span class="nb">char</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
-    <span class="n">update_dts</span> <span class="k">timestamp</span><span class="p">,</span>
-    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">cascade</span><span class="p">,</span>
-    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
-<span class="p">);</span>
-<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_info</span> <span class="k">is</span> <span class="s1">&#39;User attributes with no historical-tracking, simply keep latest value&#39;</span><span class="p">;</span>
-
-<span class="c1">--The slowly changing Sat!</span>
-<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_geo</span> <span class="p">(</span>
-    <span class="n">user_id</span> <span class="n">uuid</span><span class="p">,</span>
-    <span class="k">location</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">country_code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-    <span class="n">region</span>  <span class="nb">text</span><span class="p">,</span>
-    <span class="n">city</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">valid_from</span> <span class="k">timestamp</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
-    <span class="n">valid_to</span> <span class="k">timestamp</span><span class="p">,</span>
-    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
-    <span class="n">update_dts</span> <span class="k">timestamp</span><span class="p">,</span>
-    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">valid_from</span><span class="p">),</span>
-    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">cascade</span><span class="p">,</span>
-    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
-<span class="p">);</span>
-<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_geo</span> <span class="k">is</span> <span class="s1">&#39;User geo attributes with historical-tracking, preserving changes in time&#39;</span><span class="p">;</span>
-
-
-<span class="c1">--The rapidly changing Sat!</span>
-<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_perso</span> <span class="p">(</span>
-    <span class="n">user_id</span> <span class="n">uuid</span><span class="p">,</span>
-    <span class="n">status</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">occupation</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">interest</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">fav_books</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">about_me</span> <span class="nb">text</span><span class="p">,</span>
-    <span class="n">ranking</span> <span class="nb">int</span><span class="p">,</span>  <span class="c1">--could normalize ranking for site where available</span>
-    <span class="n">valid_from</span> <span class="k">timestamp</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
-    <span class="n">valid_to</span> <span class="k">timestamp</span><span class="p">,</span>
-    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
-    <span class="n">update_dts</span> <span class="k">timestamp</span><span class="p">,</span>
-    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">valid_from</span><span class="p">),</span>
-    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">cascade</span><span class="p">,</span>
-    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
-<span class="p">);</span>
-<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_perso</span> <span class="k">is</span> <span class="s1">&#39;User perso attributes with historical-tracking&#39;</span><span class="p">;</span>
-
 <span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">review</span><span class="p">(</span>
     <span class="n">id</span> <span class="n">bigserial</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
     <span class="n">work_refid</span> <span class="nb">bigint</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
@@ -502,11 +450,14 @@
 <span class="p">);</span>
 <span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">review</span> <span class="k">is</span> <span class="s1">&#39;Review and/or rating done for a Work in a specific language by a user, with no PK since most sites do not restrict users from reviewing same book multiple times&#39;</span><span class="p">;</span>
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">review</span><span class="p">.</span><span class="n">user_id</span> <span class="k">is</span> <span class="s1">&#39;User identifier derived from MD5 hashing of username, site (ref. integration.derive_userid)&#39;</span><span class="p">;</span>
+
+<span class="c1">-- skipping a few other tables</span>
 </pre></div>
 
 
 <h3 id="integration-business-layer">Integration --Business Layer</h3>
-<p>Integration/business layer is start adding, relating, correcting, transforming raw data according to our business rules that can be complex to do only on the presentation layer.  For our specific case here, this is where we fix data issues with the source.  Ex., we have Work-if from Lt from source thingISBN.xml that are duplicates of other id (they were merged to the same Work, so the website re-direct any request to the "master" work).  Also, we will link very similar reviews together so they can be reported as duplicates and/or used to identify same user.</p>
+<p>Integration/business layer is where we start enriching, relating, correcting, transforming raw data according to business rules that would be too complex to do at presentation layer.  For our specific case, we will fix data issues, like handling Work-id found inside thingISBN.xml but corresponding to duplicates of other id (merged to the same Work). These are discovered during harvesting, as LT website re-directs request made to thee duplicates ids to the "master" work.  </p>
+<p>Other data processing is linking very similar reviews together so they can be reported as duplicates and/or used to identify same user (to be discussed in separate post).</p>
 <div class="highlight"><pre><span></span><span class="c1">-----------------------------------------------------------------------------------------------</span>
 <span class="c1">-------------------------------------- Business Sub-layer -------------------------------------</span>
 <span class="c1">-----------------------------------------------------------------------------------------------</span>
@@ -524,7 +475,7 @@
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_sameas</span><span class="p">.</span><span class="n">master_refid</span> <span class="k">is</span> <span class="s1">&#39;The &quot;master&quot; work that work_refid refers to&#39;</span><span class="p">;</span>
 
 
-<span class="c1">-- .. recursive hierarchical relation</span>
+<span class="c1">-- .. recursive hierarchical relations</span>
 <span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">mds_parent</span> <span class="p">(</span>
     <span class="n">code</span> <span class="nb">text</span><span class="p">,</span>
     <span class="n">parent_code</span> <span class="nb">text</span><span class="p">,</span>
@@ -558,7 +509,6 @@
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_site_mapping</span><span class="p">.</span><span class="n">last_harvest_dts</span> <span class="k">is</span> <span class="s1">&#39;Last time work was harvested&#39;</span><span class="p">;</span>
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_site_mapping</span><span class="p">.</span><span class="n">title</span> <span class="k">is</span> <span class="s1">&#39;Book title, author, lang are for QA purposes (mapping between sites done through isbn(s) lookup)&#39;</span><span class="p">;</span>
 
-
 <span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">review_similarto</span> <span class="p">(</span>
     <span class="n">rev_id</span> <span class="nb">bigint</span><span class="p">,</span>
     <span class="n">other_rev_id</span> <span class="nb">bigint</span><span class="p">,</span>
@@ -579,8 +529,6 @@
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">review_similarto</span><span class="p">.</span><span class="n">rev_id</span> <span class="k">is</span> <span class="s1">&#39;Review-id constraint that it is larger than other_rev_id (avoid dup pairwise comparison)&#39;</span>
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">review_similarto</span><span class="p">.</span><span class="n">other_rev_id</span> <span class="k">is</span> <span class="s1">&#39;The other similar review-id&#39;</span><span class="p">;</span>
 
-<span class="c1">-- to</span>
-<span class="c1">-- some user writes their reviews on diff site</span>
 <span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_sameas</span> <span class="p">(</span>
     <span class="n">user_id</span> <span class="n">uuid</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
     <span class="n">same_user_id</span> <span class="n">uuid</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
@@ -595,9 +543,6 @@
     <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
 <span class="p">);</span>
 
-<span class="c1">-- if user_id s1-u13, s3-u654 are considered the same, then this stores 2 rows (user_id, same_userid):</span>
-<span class="c1">-- (s1-u13,s1-u13)</span>
-<span class="c1">-- (s3-u654,s1-u13)</span>
 <span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_sameas</span> <span class="k">as</span> <span class="s1">&#39;Store &quot;same-as&quot; user across sites spotted when multiple reviews have very similar text (exact rules TBD)&#39;</span><span class="p">;</span>
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_sameas</span><span class="p">.</span><span class="n">user_id</span> <span class="k">as</span> <span class="s1">&#39;All user_id in diff sites recognized as same user&#39;</span><span class="p">;</span>
 <span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_sameas</span><span class="p">.</span><span class="n">same_user_id</span> <span class="k">as</span> <span class="s1">&#39;Flag to identify same user_id (taken arbitrarily)&#39;</span><span class="p">;</span>
@@ -605,7 +550,7 @@
             </div>
 
             <!-- MO: added for series -->
-                <p>This post is part <built-in method index of unicode object at 0x1024a4f30> of the "" series:</p>
+                <p>This post is part <built-in method index of unicode object at 0x111230150> of the "" series:</p>
                 <ol class="parts">
                </ol>
 

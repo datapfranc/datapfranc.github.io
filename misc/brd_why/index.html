@@ -104,7 +104,7 @@
 <p>So what else can bring you lasting motivation? One word: passion!  Working on stuff compatible with personal interest will make work less like <em>work</em> and more like <em>leisure</em>! Personally, I enjoy working on data-oriented projects. So if I can find a subject that is appealing to me, then I'm all well. Like most people, there are a lot of subjects I find interesting, but the challenge is to find one where some data content exist out there that can easily be integrated inside a database.</p>
 <p>While procrastinating on book reviews sites, it hit me... that's it, I had found it, <a href="http://datapfranc.github.io/">BRD</a> was just born!  Although I would not qualify myself as a literary person, I enjoy reading books and reviews like <a href="https://www.librarything.com/work/23078/reviews/67790839">this one</a> or <a href="https://www.goodreads.com/review/show/9230871?book_show_action=true&amp;from_review_page=1">that one</a> could convince anyone to (re)read any book!</p>
 <h3 id="report-on-book-review">Report on Book review</h3>
-<p>I'm not sure these book reviews are very valuable by themselves... but they are certainly interesting and fun to read!  What report or questions could we get from a BRD dataset?  Here are a few thoughts:</p>
+<p>I'm not sure how valuable these book reviews are by themselves... but they are certainly interesting and fun to read!  What sort of questions could we get from a BRD dataset?  Here are some thoughts:</p>
 <ol>
 <li>Trend of rating in time</li>
 <li>Reader appreciation in terms of their demographics</li>
@@ -112,12 +112,12 @@
 <li>Reviews/rating statistics difference per site</li>
 <li>Finding same or similar reviews and reviewer</li>
 </ol>
-<p>There are certainly many more I can't envision at this time. We'll see how it turns out.</p>
+<p>There are certainly many more I can't envision at this time.</p>
 <h3 id="next-steps">Next steps</h3>
-<p>To make this happen, I need to work on quite a few things: 1) design a data model, 2) develop pipeline from harvesting step to loading into a database, 3) setting up the DB and pipeline workflow environment, 4) define and implement visualization tool, 5) define the backend Cloud provider, etc.    </p>
+<p>To make this happen, I need to work on quite a few things: 1) design a data model, 2) develop pipeline from harvesting step to loading into a database, 3) setting up the DB and pipeline workflow environment, 4) define and implement visualization tool, 5) define the backend Cloud provider, etc.</p>
 <p>Technology wise, here are some libraries/tools I'll be using:</p>
 <ul>
-<li>Postgres for the DB (planning to store the integration data myself and not in Cloud)</li>
+<li>Postgres for the DB (planning to store integration data locally and not in Cloud)</li>
 <li><a href="https://github.com/spotify/luigi">Luigi</a> used as the elt framework (requiring some customization)</li>
 <li><a href="scrapy.org">Scrapy</a> for the web harvesting bit</li>
 <li>Still not sure on the visualization side</li>
