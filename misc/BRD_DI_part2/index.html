@@ -105,11 +105,6 @@
 <h3 id="staging-sub-layer">Staging sub-layer</h3>
 <p>This is where data is landing once extracted from source. It is raw, volatile (truncated before new load) and designed for speed (bulk loading) to limit impact on system sources. This is also a good place to manage logistics/auditing aspect of loads.</p>
 <div class="highlight"><pre><span></span><span class="c1">------------------------------------------ Staging layer -----------------------------------------------</span>
-<span class="c1">--------------------------------------------------------------------------------------------------------</span>
-<span class="c1">-- Goal: - Layer where raw data is bulk loaded from source used by integration ELT steps</span>
-<span class="c1">--         - Data is volatile (truncated before each new load)</span>
-<span class="c1">--       - No transformation or rules are applied on data (taken as-is from source)</span>
-<span class="c1">--------------------------------------------------------------------------------------------------------</span>
 <span class="k">create</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">review</span> <span class="p">(</span>
     <span class="n">id</span> <span class="n">bigserial</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
     <span class="n">site_logical_name</span> <span class="nb">text</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
@@ -190,12 +185,9 @@
 
 
 <h3 id="integration-raw-layer">Integration (raw) Layer</h3>
-<p>Integration is where we ... integrate data! Behind this pleonasm, integration from multi-source is only possible with common business entities conforming through same identifiers. We've discussed this previously with the choice of ISBN to be used as "anchor" point across source.</p>
-<p>We can see all dedicated tables like <code>user_info</code> or <code>work_info</code> (normalized) that store user or work attributes.  This will allow us to add stuff later on or decide to track historical changes without affecting existing structure.   </p>
+<p>Integration is where we ... integrate data! Behind this pleonasm, integrating multi-source data assumes that common business entities have conformed identifiers across source. We've covered this when we discuss the choice of using ISBN lookup to map Work between sites with the one from Librarything (reference Work-id) which is used as the "anchor" point.</p>
+<p>In the following DDL code, we see the effect of normalization with tables like <code>user_info</code>, <code>work_info</code> (etc..) that store user or work attributes.  This will allow us to add stuff later on or decide to track historical changes without affecting <u>existing</u> structure.   </p>
 <div class="highlight"><pre><span></span><span class="c1">---------------------------------- Integration layer -------------------------------------------</span>
-<span class="c1">------------------------------------------------------------------------------------------------</span>
-<span class="c1">-- Raw -layer: untransformed data from source without applying business rules</span>
-<span class="c1">------------------------------------------------------------------------------------------------</span>
 <span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span> <span class="p">(</span>
     <span class="n">id</span> <span class="nb">int</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
     <span class="n">logical_name</span> <span class="nb">text</span> <span class="k">unique</span><span class="p">,</span>
@@ -427,7 +419,7 @@
 
 <h3 id="consolidation-business-layer">Consolidation --Business Layer</h3>
 <p>Next, we'll discuss another (sub)layer called Business.  Here terminology and practice vary much (we may have sub-layer like Business, Semantic, or simply adding components to Presentation layer .), but the important features is that we need to enrich, correct, transform raw data according to our business rules.  And these may be too complex to implement downstream on one shot. From our specific example, in this layer we we'll fix data issues and start creating added-value components useful for Presentation layer.</p>
-<p>Let's postpone this on a future post.</p>
+<p>Let's postpone this for a future post.</p>
             </div>
 
             <!-- MO: added for series -->
