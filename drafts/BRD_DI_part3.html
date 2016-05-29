@@ -15,7 +15,7 @@
 
         <meta name="author" content="Martin Ouellet" />
         <meta name="keywords" content="BRD,data integration" />
-        <meta name="description" content="Linking reviews There is no direct way from our source data to link/merge same user from different sites. One (indirect) way, could be to use review raw text and measure their similarity index against each other. We could have received a business rules similar to : Flag user from different sites as being the same use whenever more than, say 3 review have similarity close to. talk about which distance/algo to use Similarity calculation present the code sql used ... select * from dummy Result Example" />
+        <meta name="description" content="Business Layer As said in previous post, in this layer we start adding and complementing our ^raw data with useful elements needed by our Presentation/Delivery layer. Here we can start fixing data issues, grouping and associating similar entities, applying business rules, etc. Data issues : handling Work-id found inside thingISBN.xml but corresponding to duplicates of other id (merged to the same Work). These are discovered during harvesting, as LT website re-directs request made to thee duplicates ids to the &#34;master&#34; work. Other data processing is linking very similar reviews together so they can be reported as duplicates and/or ..." />
 
 
 
@@ -99,7 +99,83 @@
             </h1>
 
             <div class="entry-content">
-                <h2 id="linking-reviews">Linking reviews</h2>
+                <h2 id="business-layer">Business Layer</h2>
+<p>As said in previous post, in this layer we start adding and complementing our ^raw data with useful elements needed by our Presentation/Delivery layer. Here we can start fixing data issues, grouping and associating similar entities, applying business rules, etc.</p>
+<p>Data issues :
+handling Work-id found inside thingISBN.xml but corresponding to duplicates of other id (merged to the same Work). These are discovered during harvesting, as LT website re-directs request made to thee duplicates ids to the "master" work.  </p>
+<p>Other data processing is linking very similar reviews together so they can be reported as duplicates and/or used to identify same user (to be discussed in separate post).</p>
+<div class="highlight"><pre><span></span><span class="c1">-----------------------------------------------------------------------------------------------</span>
+<span class="c1">-------------------------------------- Business layer -----------------------------------------</span>
+<span class="c1">--          - 2) Business sub-layer: apply transformation to help preparing for presentation layer</span>
+<span class="c1">--                 ex.) de-duplication (same_as for work, user, review, etc...)</span>
+<span class="c1">--                 ex.) any sort of standardization/harmonization...</span>
+<span class="c1">------------------------------------------------------------------------------------------------</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_sameas</span> <span class="p">(</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">master_refid</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">work_refid</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">work_refid</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">(</span><span class="n">refid</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">master_refid</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">(</span><span class="n">refid</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_sameas</span> <span class="k">is</span> <span class="s1">&#39;Different work_refid may exist in lt for same &quot;master&quot; Work&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_sameas</span><span class="p">.</span><span class="n">master_refid</span> <span class="k">is</span> <span class="s1">&#39;The &quot;master&quot; work that work_refid refers to&#39;</span><span class="p">;</span>
+
+
+<span class="c1">-- .. recursive hierarchical relations</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">mds_parent</span> <span class="p">(</span>
+    <span class="n">code</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">parent_code</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">parent_code</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">mds</span><span class="p">(</span><span class="n">code</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">parent_code</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">mds</span><span class="p">(</span><span class="n">code</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">review_similarto</span> <span class="p">(</span>
+    <span class="n">rev_id</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">other_rev_id</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">similar_index</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="k">check</span> <span class="p">(</span><span class="n">other_rev_id</span> <span class="o">&lt;</span> <span class="n">rev_id</span><span class="p">),</span>
+    <span class="k">primary</span> <span class="k">key</span><span class="p">(</span><span class="n">rev_id</span><span class="p">,</span> <span class="n">other_rev_id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span><span class="p">(</span><span class="n">rev_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">review</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span><span class="p">(</span><span class="n">other_rev_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">review</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="c1">--could be convenient for downstream to store all pair-wise of similar review ??</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">review_similarto</span> <span class="k">is</span> <span class="s1">&#39;To track down reviews with similarity&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">review_similarto</span><span class="p">.</span><span class="n">rev_id</span> <span class="k">is</span> <span class="s1">&#39;Review-id constraint that it is larger than other_rev_id (avoid dup pairwise comparison)&#39;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">review_similarto</span><span class="p">.</span><span class="n">other_rev_id</span> <span class="k">is</span> <span class="s1">&#39;The other similar review-id&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_sameas</span> <span class="p">(</span>
+    <span class="n">user_id</span> <span class="n">uuid</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">same_user_id</span> <span class="n">uuid</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">valid_from</span> <span class="k">timestamp</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">valid_to</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">update_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">same_user_id</span><span class="p">,</span> <span class="n">valid_from</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">cascade</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">same_user_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">cascade</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_sameas</span> <span class="k">as</span> <span class="s1">&#39;Store &quot;same-as&quot; user across sites spotted when multiple reviews have very similar text (exact rules TBD)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_sameas</span><span class="p">.</span><span class="n">user_id</span> <span class="k">as</span> <span class="s1">&#39;All user_id in diff sites recognized as same user&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">user_sameas</span><span class="p">.</span><span class="n">same_user_id</span> <span class="k">as</span> <span class="s1">&#39;Flag to identify same user_id (taken arbitrarily)&#39;</span><span class="p">;</span>
+</pre></div>
+
+
+<h2 id="linking-reviews">Linking reviews</h2>
 <p>There is no direct way from our source data to link/merge same user from different sites.  One (indirect) way, could be to use review raw text and measure their similarity index against each other. We could have received a business rules similar to :  <em>Flag user from different sites as being the same use whenever more than, say 3 review have similarity close to</em>.</p>
 <p>talk about which distance/algo to use</p>
 <h3 id="similarity-calculation">Similarity calculation</h3>
@@ -112,7 +188,7 @@
             </div>
 
             <!-- MO: added for series -->
-                <p>This post is part <built-in method index of unicode object at 0x106432f90> of the "" series:</p>
+                <p>This post is part <built-in method index of unicode object at 0x107e36480> of the "" series:</p>
                 <ol class="parts">
                </ol>
 
@@ -175,6 +251,11 @@
                             How to do data integration, BRD example
                         </a>
                     </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/BRD_DI_part2/">
+                            How to do data integration, BRD example (part2)
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -186,7 +267,7 @@
                             BRD
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-2">
                         <a href="http://datapfranc.github.io/tags/data-integration.html">
                             data integration
                         </a>

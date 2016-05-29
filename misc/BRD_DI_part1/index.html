@@ -106,7 +106,7 @@
 <h3 id="book-reviews-an-example-of-data-integration">Book Reviews: an example of data integration</h3>
 <p>Let's say I want to report on book reviews/rating done by users of these cool social media sites <a href="https://librarything.com">librarything</a>, <a href="https://goodreads.com">goodreads</a> or <a href="http:babelio">babelio</a>.  <em>Note: I enjoy spending time (procrastinating) on these book review sites, so the choice of Book reviews as a first dataset is one of personal interest... key to stay motivated!</em></p>
 <p>So how should we proceed?</p>
-<p>First, we need proper data model for both reference data (book title, authors, isbn...) and review data (rating, text).  There are other important decisions like ETL/pipeline design, data quality, ..but let's focus on how data  modeling is done:</p>
+<p>We need proper data model for both reference data (book title, authors, isbn...) and review data (rating, text).  There are other important decisions like ETL/pipeline design, data quality, ..but let's focus on how data  modeling is done:</p>
 <ol>
 <li>identity important business entities (i.e. our core business concept like Author, Work, Tag, Review Isbn..)</li>
 <li>define core entities potentially used for integration (with natural-key, like Book's title/author)</li>
@@ -116,7 +116,7 @@
 <p><img src='/images/blog/BRD_model.jpg' width='65%' alt='Logical Data model'/></p>
 <h3 id="reviews-integration">Reviews integration</h3>
 <p>First we can integration and link reviews through the 'Book' they refer to. For that we need to work with a clear and well specified Book concept.  Amazon records reviews at Book edition level, but it is probably more appropriate to record them at <strong>Work</strong> level. Work (<a href="https://www.librarything.com/concepts">concept</a>) as defined by librarything is a single piece of work irrespective of translations, editions and title.  So this is a good choice to consolidate reviews from different languages, culture and small variations of edition.. all pertaining to the same Book.   </p>
-<p>Next is what natural-key for Work should we use to integrate reviews across sites. We could choose Work's Title/Author as a composite key but this will result in issues like spelling differences, titles translation, small variation in different editions.. An alternative would be to use <a href="http://www.isbn.org/faqs_general_questions">ISBN</a> to uniquely identify each editions and use a mapping between these ISBN's and the unique Work.  Fortunately, Librarything produces an export called <a href="http://www.librarything.com/wiki/index.php/LibraryThing_APIs">thingISBN.xml</a> that is available for non-commercial use and does exactly that!  This export list ISBN's along with their assignation to same Work entity (yet another social media by-product or collaboration done by the mass).</p>
+<p>Next step is to decide on which Work's natural-key to use for integrating reviews across sites. We could choose Work's Title/Author as a composite key but this will result in issues like spelling differences, titles translation, small variation in different editions.. An alternative would be to use <a href="http://www.isbn.org/faqs_general_questions">ISBN</a> to uniquely identify each editions and use a mapping between these ISBN's and the unique Work.  Fortunately, Librarything produces an export called <a href="http://www.librarything.com/wiki/index.php/LibraryThing_APIs">thingISBN.xml</a> that is available for non-commercial use and does exactly that!  This export list ISBN's along with their assignation to same Work entity (yet another social media by-product or collaboration done by the mass).</p>
 <p>So Reviews from any site are harvested by first finding its identifier through a look-up the ISBNs. This implies using Librarything Work identifier as the <u>master</u> data source for Work.</p>
 <h3 id="users-integration">Users integration</h3>
 <p>Another integration decision is about <strong>User</strong>. Could we integrate and merge same user across sites?  hmm...the easiest is surely to consider all users across sites as different. However, this does not seem to reflect <a href="http://www.goodreads.com/topic/show/1545181-will-goodreads-reviews-be-on-amazon">reality</a> and many users post their reviews in multiple sites for increased visibility.</p>
@@ -133,6 +133,9 @@
                 <ol class="parts">
                     <li class="active">
                         <a href='http://datapfranc.github.io/misc/BRD_DI_part1/'>How to do data integration, BRD example</a>
+                    </li>
+                    <li >
+                        <a href='http://datapfranc.github.io/misc/BRD_DI_part2/'>How to do data integration, BRD example (part2)</a>
                     </li>
                </ol>
 
@@ -195,6 +198,11 @@
                             How to do data integration, BRD example
                         </a>
                     </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/BRD_DI_part2/">
+                            How to do data integration, BRD example (part2)
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -206,7 +214,7 @@
                             BRD
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-2">
                         <a href="http://datapfranc.github.io/tags/data-integration.html">
                             data integration
                         </a>

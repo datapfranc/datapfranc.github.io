@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en"
+>
+<head>
+    <title>How to do data integration, BRD example (part2) - DataPlatform Franchising</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="http://datapfranc.github.io/images/favicon.png" rel="icon">
+
+<link rel="canonical" href="http://datapfranc.github.io/misc/BRD_DI_part2/">
+
+        <meta name="author" content="Martin Ouellet" />
+        <meta name="keywords" content="BRD,data integration" />
+        <meta name="description" content="Physical Data model This post presents the physical data model. Looking back at the logical model, we&#39;ll see it contains a lot more tables than entities defined. Relational databases are less flexible than schema-less NoSQL environments and highly normalized model is one technique to mitigate rigidity through extension. We accommodate changes by adding new structures as we discover new attributes and relationship relevant to our evolving needs. Interested reader can check methods like Data Vault or Anchor Modeling. To explain the detail of physical data model, better let the code speaks for itself. Although SQL is not well suited ..." />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
+    <link href="http://datapfranc.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://datapfranc.github.io/theme/css/pygments/monokai.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/style.css" type="text/css"/>
+        <link href="http://datapfranc.github.io/static/custom.css" rel="stylesheet">
+
+        <link href="http://datapfranc.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="DataPlatform Franchising ATOM Feed"/>
+
+</head>
+<body>
+<!-- <script src="http://datapfranc.github.io/theme/js/jquery.min.js"></script> -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://datapfranc.github.io/" class="navbar-brand">
+<img src="http://datapfranc.github.io/images/logo.png" width="36"/> DataPlatform Franchising            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://datapfranc.github.io/about.html">
+                             About
+                          </a></li>
+                         <li><a href="http://datapfranc.github.io/context.html">
+                             Context
+                          </a></li>
+                         <li><a href="http://datapfranc.github.io/brd_intro.html">
+                             BRD
+                          </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://datapfranc.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <div class="well well-sm">
+              <!-- <div class="panel-heading"> -->
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-05-21T11:15:00+02:00"> Sat 21 May 2016</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://datapfranc.github.io/tags/brd.html">BRD</a>
+        /
+	<a href="http://datapfranc.github.io/tags/data-integration.html">data integration</a>
+    
+</footer><!-- /.post-info -->              <!-- </div> -->
+            </div>
+            <h1 class="entry-title">
+                <a href="http://datapfranc.github.io/misc/BRD_DI_part2/"
+                rel="bookmark"
+                title="Permalink to How to do data integration, BRD example (part2)">
+                    How to do data integration, BRD example (part2)
+                </a>
+            </h1>
+
+            <div class="entry-content">
+                <h2 id="physical-data-model">Physical Data model</h2>
+<p>This post presents the physical data model. Looking back at the <a href="http://datapfranc.github.io/misc/BRD_DI_part1/">logical model</a>, we'll see it contains a lot more tables than entities defined. Relational databases are less flexible than schema-less NoSQL environments and highly normalized model is one technique to mitigate rigidity through extension. We accommodate changes by adding new structures as we discover new attributes and relationship relevant to our evolving needs. Interested reader can check methods like <a href="https://en.wikipedia.org/wiki/Data_Vault_Modeling">Data Vault</a> or <a href="http://www.anchormodeling.com/?page_id=2">Anchor Modeling</a>.</p>
+<p>To explain the detail of physical data model, better let the code speaks for itself.  Although SQL is not well suited for self-documented code, most DB engines support explicit comment in DDL.</p>
+<h3 id="staging-sub-layer">Staging sub-layer</h3>
+<p>This is where data is landing once extracted from source. It is raw, volatile (truncated before new load) and designed for speed (bulk loading) to limit impact on system sources. This is also a good place to manage logistics/auditing aspect of loads.</p>
+<div class="highlight"><pre><span></span><span class="c1">------------------------------------------ Staging layer -----------------------------------------------</span>
+<span class="c1">--------------------------------------------------------------------------------------------------------</span>
+<span class="c1">-- Goal: - Layer where raw data is bulk loaded from source used by integration ELT steps</span>
+<span class="c1">--         - Data is volatile (truncated before each new load)</span>
+<span class="c1">--       - No transformation or rules are applied on data (taken as-is from source)</span>
+<span class="c1">--------------------------------------------------------------------------------------------------------</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">review</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="n">bigserial</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">site_logical_name</span> <span class="nb">text</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">username</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">user_uid</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">rating</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">review</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">review_date</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">review_lang</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">likes</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">dup_refid</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">work_uid</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">authors</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">tags_t</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">tags_n</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">tags_lang</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">parsed_review_date</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="n">parsed_rating</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">parsed_likes</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">parsed_dislikes</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">loading_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">review</span> <span class="k">is</span> <span class="s1">&#39;Review and/or Rating harvested from site&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">staging</span><span class="p">.</span><span class="n">review</span><span class="p">.</span><span class="n">work_refid</span> <span class="k">is</span> <span class="s1">&#39;Unique identifier of book (piece of work as ref to lt)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">staging</span><span class="p">.</span><span class="n">review</span><span class="p">.</span><span class="n">dup_refid</span> <span class="k">is</span> <span class="s1">&#39;Duplicate id associated to a &quot;master&quot; work_refid (duplicates exist in lt)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">staging</span><span class="p">.</span><span class="n">review</span><span class="p">.</span><span class="n">work_uid</span> <span class="k">is</span> <span class="s1">&#39;Work id used by other site; to map with lt&#39;&#39;s work_refid during harvest&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">staging</span><span class="p">.</span><span class="n">review</span><span class="p">.</span><span class="n">parsed_review_date</span> <span class="k">is</span> <span class="s1">&#39;Parsed date from raw string&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">staging</span><span class="p">.</span><span class="n">review</span><span class="p">.</span><span class="n">likes</span> <span class="k">is</span> <span class="s1">&#39;Nb of users liking the review (concept such as likes, green flag)&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">thingisbn</span> <span class="p">(</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">isbn_ori</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">isbn13</span> <span class="nb">char</span><span class="p">(</span><span class="mi">13</span><span class="p">),</span>
+    <span class="n">isbn10</span> <span class="nb">char</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">loading_dts</span> <span class="k">timestamp</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">thingisbn</span> <span class="k">is</span> <span class="s1">&#39;Data from thingISBN.xml to refresh reference work/isbn data (No PK, as duplicates of &lt;work_id,isbn&gt; exist in source)&#39;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">work_info</span> <span class="p">(</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span> <span class="k">unique</span><span class="p">,</span>
+    <span class="n">dup_refid</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">original_lang</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">ori_lang_code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">authors</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">authors_code</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">mds_code</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">mds_code_corr</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">mds_text</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">lc_subjects</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">popularity</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">other_lang_title</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">work_info</span> <span class="k">is</span> <span class="s1">&#39;Staging for reference data harvested from work&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">serial</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">batch_job</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">step_name</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">step_no</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">status</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">run_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">elapse_sec</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">rows_impacted</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">output</span> <span class="nb">text</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span> <span class="k">is</span> <span class="s1">&#39;Metadata to report on running batch_job/steps&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">.</span><span class="n">status</span> <span class="k">is</span> <span class="s1">&#39;Status of step&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">.</span><span class="n">run_dts</span> <span class="k">is</span> <span class="s1">&#39;Timestamp when step run (useful for things like limiting harvest period)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">.</span><span class="k">output</span> <span class="k">is</span> <span class="s1">&#39;Output produced by a step like error msg when failure or additional info&#39;</span><span class="p">;</span>
+</pre></div>
+
+
+<h3 id="integration-raw-layer">Integration (raw) Layer</h3>
+<p>Integration is where we ... integrate data! Behind this pleonasm, integration from multi-source is only possible with common business entities conforming through same identifiers. We've discussed this previously with the choice of ISBN to be used as "anchor" point across source.</p>
+<p>We can see all dedicated tables like <code>user_info</code> or <code>work_info</code> (normalized) that store user or work attributes.  This will allow us to add stuff later on or decide to track historical changes without affecting existing structure.   </p>
+<div class="highlight"><pre><span></span><span class="c1">---------------------------------- Integration layer -------------------------------------------</span>
+<span class="c1">------------------------------------------------------------------------------------------------</span>
+<span class="c1">-- Raw -layer: untransformed data from source without applying business rules</span>
+<span class="c1">------------------------------------------------------------------------------------------------</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">int</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">logical_name</span> <span class="nb">text</span> <span class="k">unique</span><span class="p">,</span>
+    <span class="n">status</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span> <span class="k">not</span> <span class="k">null</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span> <span class="k">is</span> <span class="s1">&#39;Website of book reviews&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span><span class="p">.</span><span class="n">logical_name</span> <span class="k">is</span> <span class="s1">&#39;Name used as business key independent of evolving domain/url&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span><span class="p">.</span><span class="n">status</span> <span class="k">is</span> <span class="s1">&#39;Flag used to get status for sites&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">site_identifier</span> <span class="p">(</span>
+    <span class="n">site_id</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">hostname</span> <span class="nb">text</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">full_url</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">valid_from</span> <span class="k">timestamp</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">valid_to</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">update_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">site_id</span><span class="p">,</span> <span class="n">valid_from</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">site_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">cascade</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">site_identifier</span> <span class="k">is</span> <span class="s1">&#39;Natural key, hostname, is decoupled from site_id to accommodate change in time&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">site_identifier</span><span class="p">.</span><span class="n">hostname</span> <span class="k">is</span> <span class="s1">&#39;Hostname such as www.amazon.fr, www.amazon.com, www.thelibrary.fr&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="k">language</span> <span class="p">(</span>
+    <span class="n">code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">code3</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">unique</span><span class="p">,</span>
+    <span class="n">code3_term</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">unique</span><span class="p">,</span>
+    <span class="n">code2</span> <span class="nb">char</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">unique</span><span class="p">,</span>
+    <span class="n">english_name</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">english_iso_name</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">french_name</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">french_iso_name</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="k">language</span> <span class="k">is</span> <span class="s1">&#39;Language immutable reference&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">language</span><span class="p">.</span><span class="n">code</span> <span class="k">is</span> <span class="s1">&#39;Primary key using MARC code (same as ISO 639-2 alpha-3 bibliographic code)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">language</span><span class="p">.</span><span class="n">code3</span> <span class="k">is</span> <span class="s1">&#39;The ISO 639-2 alpha-3 bibliographic code (originally sourced from MARC code)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">language</span><span class="p">.</span><span class="n">code3_term</span> <span class="k">is</span> <span class="s1">&#39;The ISO 639-2 alpha-3 terminology code&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">language</span><span class="p">.</span><span class="n">code2</span> <span class="k">is</span> <span class="s1">&#39;The ISO 639-1 alpha-2 code (subset of alpha-3)&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span> <span class="p">(</span>
+    <span class="n">refid</span> <span class="nb">bigint</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">last_harvest_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">last_seen_date</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span> <span class="k">is</span> <span class="s1">&#39;Book as a single piece of work irrespective of translations, editions and title sourced from lt (taken as refernece master data)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">.</span><span class="n">refid</span> <span class="k">is</span> <span class="s1">&#39;Work identifer created, curated and managed by lt&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">.</span><span class="n">last_seen_date</span> <span class="k">is</span> <span class="s1">&#39;Last time this work was seen during a thingisbn bulkload&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_info</span> <span class="p">(</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">original_lang</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">popularity</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">mds_code</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">mds_code_ori</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">lc_subjects</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">update_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">work_refid</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">(</span><span class="n">refid</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_info</span> <span class="k">is</span> <span class="s1">&#39;Attribute data related to a Work (unhistorized Satellite-type, could add history if need be)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_info</span><span class="p">.</span><span class="n">mds_code</span> <span class="k">is</span> <span class="s1">&#39;mds code without dot and truncated to align with mds_text, same as integration.mds(code)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_info</span><span class="p">.</span><span class="n">mds_code_ori</span> <span class="k">is</span> <span class="s1">&#39;The mds original code as found from lt&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">isbn</span> <span class="p">(</span>
+    <span class="n">ean</span> <span class="nb">bigint</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">isbn13</span> <span class="nb">char</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">isbn10</span> <span class="nb">char</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+    <span class="n">last_seen_date</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">isbn</span> <span class="k">is</span> <span class="s1">&#39;ISBNs associated to Work sourced from lt (used to relate reviews between site)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">isbn</span><span class="p">.</span><span class="n">ean</span> <span class="k">is</span> <span class="s1">&#39;Ean used as primary-key is simply the numerical representation of isbn13&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">isbn_info</span> <span class="p">(</span>
+    <span class="n">ean</span> <span class="nb">bigint</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">book_title</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">lang_code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">source_site_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">update_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">ean</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">isbn</span><span class="p">(</span><span class="n">ean</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">isbn_info</span> <span class="k">is</span> <span class="s1">&#39;Attribute data related to ISBN (un-historized Satellite-type, could add history if need be)&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_isbn</span> <span class="p">(</span>
+    <span class="n">ean</span> <span class="nb">bigint</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">last_seen_date</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="n">deletion_date</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span><span class="p">(</span><span class="n">ean</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">isbn</span><span class="p">(</span><span class="n">ean</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span><span class="p">(</span><span class="n">work_refid</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">(</span><span class="n">refid</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_isbn</span> <span class="k">is</span> <span class="s1">&#39;Association of work and ISBN (sourced from lt)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_isbn</span><span class="p">.</span><span class="n">ean</span> <span class="k">is</span> <span class="s1">&#39;The ISBN13 code in numerical, defined as PK so one ean only associated to 1 work&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">author</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="n">uuid</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">code</span> <span class="nb">text</span> <span class="k">unique</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">author</span> <span class="k">is</span> <span class="s1">&#39;Author sourced from lt&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">id</span> <span class="k">is</span> <span class="s1">&#39;Identifier derived from MD5 hashing of code&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">author</span><span class="p">.</span><span class="n">code</span> <span class="k">is</span> <span class="s1">&#39;Unique and disambiguation code given by lt: /author/lnamefname-x&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">author_info</span> <span class="p">(</span>
+    <span class="n">author_id</span> <span class="n">uuid</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">name</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">legal_name</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">gender</span> <span class="nb">char</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">nationality</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">birth_year</span> <span class="nb">smallint</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">update_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">author_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">author</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">author_info</span> <span class="k">is</span> <span class="s1">&#39;Author info sourced from lt&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_author</span> <span class="p">(</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">author_id</span> <span class="n">uuid</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">work_refid</span><span class="p">,</span> <span class="n">author_id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">work_refid</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">(</span><span class="n">refid</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">author_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">author</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_author</span> <span class="k">is</span> <span class="s1">&#39;Association between Work and its author(s), sourced from lt&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_title</span> <span class="p">(</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">lang_code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">lang_text</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span> <span class="p">(</span><span class="n">work_refid</span><span class="p">,</span> <span class="n">lang_text</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_title</span> <span class="k">is</span> <span class="s1">&#39;Title of work in different language edition&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_title</span><span class="p">.</span><span class="n">lang_text</span> <span class="k">is</span> <span class="s1">&#39;Language is used as PK and preserve so we spot missing language ref&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="n">uuid</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">user_uid</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">site_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">username</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">last_seen_date</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">unique</span> <span class="p">(</span><span class="n">user_uid</span><span class="p">,</span> <span class="n">site_id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">site_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">cascade</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span> <span class="k">is</span> <span class="s1">&#39;User having contributed in some way to a site (submitted rating, review, list own&#39;&#39;s book, etc..)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">.</span><span class="n">id</span> <span class="k">is</span> <span class="s1">&#39;Primary-key generated by MD5 hashing of concat(user_uid, site_logical_name)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">.</span><span class="n">user_uid</span> <span class="k">is</span> <span class="s1">&#39;Site system-generated id to identify the user if present,(more stable than username), otherwise same as username)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">.</span><span class="n">username</span> <span class="k">is</span> <span class="s1">&#39;Username or pseudo associated to the user&#39;</span><span class="p">;</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">review</span><span class="p">(</span>
+    <span class="n">id</span> <span class="n">bigserial</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">user_id</span> <span class="n">uuid</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">site_id</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">rating</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">parsed_rating</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">likes</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">parsed_likes</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">review</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">review_date</span> <span class="nb">date</span><span class="p">,</span>
+    <span class="n">review_lang</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">work_refid</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">(</span><span class="n">refid</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">user_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">user</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">site_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">review</span> <span class="k">is</span> <span class="s1">&#39;Review and/or rating done for a Work in a specific language by a user, with no PK since most sites do not restrict users from reviewing same book multiple times&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">review</span><span class="p">.</span><span class="n">user_id</span> <span class="k">is</span> <span class="s1">&#39;User identifier derived from MD5 hashing of username, site (ref. integration.derive_userid)&#39;</span><span class="p">;</span>
+
+<span class="c1">-- skipping a few other tables...</span>
+</pre></div>
+
+
+<p>Work_site_mapping table plays an important role in integration. We collect reviews associated to Work from multiple sites, but each have their own work identifier (<code>work_uid</code>). After finding these <code>work_uid</code> through a look-up of ISBN values, we store them and provide mapping with the Librarything's reference (<code>work_refid</code>). We also use this table to keep track of when reviews were last harvested for this site's Work.</p>
+<p><code>Work_refid</code> is thus essential to our integration as many other elements (see above <code>work</code>, <code>reviews</code>..) are tied to Work using this reference identifier.</p>
+<div class="highlight"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_site_mapping</span><span class="p">(</span>
+    <span class="n">work_refid</span> <span class="nb">bigint</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">work_uid</span> <span class="nb">text</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">site_id</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">last_harvest_dts</span> <span class="k">timestamp</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">title</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">book_lang</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">authors</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">create_dts</span> <span class="k">timestamp</span><span class="p">,</span>
+    <span class="n">load_audit_id</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="k">primary</span> <span class="k">key</span><span class="p">(</span><span class="n">work_refid</span><span class="p">,</span> <span class="n">work_uid</span><span class="p">,</span> <span class="n">site_id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span><span class="p">(</span><span class="n">work_refid</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="k">work</span><span class="p">(</span><span class="n">refid</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span><span class="p">(</span><span class="n">site_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">integration</span><span class="p">.</span><span class="n">site</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">load_audit_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">staging</span><span class="p">.</span><span class="n">load_audit</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">table</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_site_mapping</span> <span class="k">is</span> <span class="s1">&#39;Map between work ref_id in lt and work_uid (id used by other site)&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_site_mapping</span><span class="p">.</span><span class="n">work_refid</span> <span class="k">is</span> <span class="s1">&#39;Reference work id used in lt&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_site_mapping</span><span class="p">.</span><span class="n">work_uid</span> <span class="k">is</span> <span class="s1">&#39;Id used in other site.  Value of -1 means no work found. Values -2 mans more than one id associated to same refid and not wish to tie them to the refid until reviews are found (e.g. asin for AZ) &#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_site_mapping</span><span class="p">.</span><span class="n">last_harvest_dts</span> <span class="k">is</span> <span class="s1">&#39;Last time work was harvested&#39;</span><span class="p">;</span>
+<span class="k">comment</span> <span class="k">on</span> <span class="k">column</span> <span class="n">integration</span><span class="p">.</span><span class="n">work_site_mapping</span><span class="p">.</span><span class="n">title</span> <span class="k">is</span> <span class="s1">&#39;Book title, author, lang are for QA purposes (mapping between sites done through isbn(s) lookup)&#39;</span><span class="p">;</span>
+</pre></div>
+
+
+<h3 id="consolidation-business-layer">Consolidation --Business Layer</h3>
+<p>Next, we'll discuss another (sub)layer called Business.  Here terminology and practice vary much (we may have sub-layer like Business, Semantic, or simply adding components to Presentation layer .), but the important features is that we need to enrich, correct, transform raw data according to our business rules.  And these may be too complex to implement downstream on one shot. From our specific example, in this layer we we'll fix data issues and start creating added-value components useful for Presentation layer.</p>
+<p>Let's postpone this on a future post.</p>
+            </div>
+
+            <!-- MO: added for series -->
+                <p>This post is part 2 of the "BRD-DI" series:</p>
+                <ol class="parts">
+                    <li >
+                        <a href='http://datapfranc.github.io/misc/BRD_DI_part1/'>How to do data integration, BRD example</a>
+                    </li>
+                    <li class="active">
+                        <a href='http://datapfranc.github.io/misc/BRD_DI_part2/'>How to do data integration, BRD example (part2)</a>
+                    </li>
+               </ol>
+
+            <!-- /.entry-content -->
+    <hr />
+    <!-- AddThis Button BEGIN -->
+    <!--<div class="addthis_toolbox addthis_default_style">
+            <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+            <a class="addthis_button_tweet"></a>
+            <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    </div>-->
+
+
+
+   <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <!-- <div class="addthis_sharing_toolbox"></div> -->
+    <div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+        <a class="addthis_counter_facebook"></a>
+        <a class="addthis_counter_twitter"></a>
+        <a class="addthis_button_google_plusone_share"></a>
+        <a class="addthis_button_email"></a>
+        <a class="addthis_button_linkedin"></a>
+        <a class="addthis_button_compact"></a>
+        <a class="addthis_counter addthis_bubble_style"></a>
+    </div>
+
+
+    <!-- AddThis Button END -->
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+
+
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://github.com/mart2010"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+                <li class="list-group-item"><a href="https://twitter.com/datapfranc"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
+                <li class="list-group-item"><a href="http://linkedin.com/in/martinouellet"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="http://martin-ouellet.blogspot.ch/"><i class="fa fa-personal-blog-square fa-lg"></i> Personal blog</a></li>
+                <li class="list-group-item"><a href="http://datapfranc.github.io/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+              </ul>
+            </li>
+
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Recent Posts</span></h4>
+                <ul class="list-group" id="recentposts">
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_why/">
+                            Why Book Review?
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/BRD_DI_part1/">
+                            How to do data integration, BRD example
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/BRD_DI_part2/">
+                            How to do data integration, BRD example (part2)
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+            <li class="list-group-item"><a href="http://datapfranc.github.io/tags.html"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group list-inline tagcloud" id="tags">
+                    <li class="list-group-item tag-1">
+                        <a href="http://datapfranc.github.io/tags/brd.html">
+                            BRD
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-2">
+                        <a href="http://datapfranc.github.io/tags/data-integration.html">
+                            data integration
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        <!--     <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://www.dbms2.com/" target="_blank">
+                DBMS2
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://librarything.com/" target="_blank">
+                Librarything
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://www.goodreads.com/" target="_blank">
+                Goodreads
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://babelio.com/" target="_blank">
+                Babelio
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://cloudofdata.com/blog/" target="_blank">
+                Paul Miller blog
+            </a>
+        </li>
+      </ul>
+    </li>
+ -->
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="well well-lg" id="footer-well">
+      <div class="container">
+      <div class="row">
+           <div class="col-sm-4">
+               <div id="RecentComments" class="dsq-widget">
+                <h3 style="margin-bottom:0.5px;">Recent Comments</h3>
+                <script type="text/javascript" src="http://.disqus.com/recent_comments_widget.js?num_items=5&hide_mods=0&hide_avatars=0&avatar_size=32&excerpt_length=100"></script>
+               </div>
+
+           </div>
+           <div class="col-sm-4">
+               <h3 style="margin-bottom:0.5px;">Websites I Like</h3>
+               </br>
+               <ul style="list-style-type:circle">
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://www.dbms2.com/" target="_blank">
+                        DBMS2
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://librarything.com/" target="_blank">
+                        Librarything
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="https://www.goodreads.com/" target="_blank">
+                        Goodreads
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="https://babelio.com/" target="_blank">
+                        Babelio
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://cloudofdata.com/blog/" target="_blank">
+                        Paul Miller blog
+                    </a>
+                  </li>
+                <div>
+              </ul>
+
+             <!-- // <script src="https://apis.google.com/js/platform.js" async defer></script> -->
+              <!-- <g:plusone size="standard(bubble)" data-href="http://the-data-show.com"></g:plusone> -->
+              <br>
+              <h3>Share DataPlatform Franchising</h3>
+                <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="http://datapfranc.github.io" addthis:title="Check out DataPlatform Franchising!">
+                  <a class="addthis_button_facebook"></a>
+                  <a class="addthis_button_twitter"></a>
+                  <a class="addthis_button_google_plusone_share"></a>
+                  <a class="addthis_button_email"></a>
+                  <a class="addthis_button_linkedin"></a>
+                  <a class="addthis_button_rss_follow" addthis:userid="http://datapfranc.github.io/feeds/all.atom.xml"></a>
+                  <a class="addthis_button_compact"></a>
+                </div>
+                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-572cd8ecd555b197"></script>
+           </div>
+           <div class="col-sm-4">
+<div id="aboutme" align="center">
+	<h3 style="margin-bottom:0.5px;">About Martin Ouellet</h3><br/>
+        <p>
+            <img width="60%" class="img-thumbnail" src="/images/headshot_2.jpg"/>
+        </p>
+    <p> 
+        I'm a data architect by choice. I enjoy doing backend stuff and data-oriented projects.<p>Find out more about me at <strong><a href="http://martin-ouellet.blogspot.ch" title="Personal Archive">martin-ouellet</a></strong></p><p>You can also contact me <a href='mailto:mart2010.l@gmail.com?subject=dataPFranc-feedback'>here</a>
+    </p>
+</div>
+           </div>
+      </div>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Martin Ouellet
+            &middot; Powered by <a href="http://python.org/" target="_blank">Python</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            adapted from <a href="http://beneathdata.com" target="_blank">beneathdata</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+   </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://datapfranc.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://datapfranc.github.io/theme/js/respond.min.js"></script>
+
+<!-- Fix scrolling issues to internal HREFs that get positioned behind navbar -->
+<!-- http://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header -->
+<script src="http://datapfranc.github.io/theme/js/href_scroll.js"></script>
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-49087367-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>
