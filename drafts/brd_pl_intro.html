@@ -2,7 +2,7 @@
 <html lang="en"
 >
 <head>
-    <title>Why Book Review? - DataPlatform Franchising</title>
+    <title>Draft Example - DataPlatform Franchising</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -11,11 +11,11 @@
 
     <link href="http://datapfranc.github.io/images/favicon.png" rel="icon">
 
-<link rel="canonical" href="http://datapfranc.github.io/misc/brd_why/">
+<link rel="canonical" href="http://datapfranc.github.io/drafts/brd_pl_intro.html">
 
         <meta name="author" content="Martin Ouellet" />
-        <meta name="keywords" content="BRD" />
-        <meta name="description" content="Passion To keep on working on any personal project you need (above all) motivation. Without any constraints or external pressure to work on something, what can help you maintain motivation? Can factors like potential gain, popularity or recognition help? Answer from personal experience: no.. these probably help at beginning, but on the long run they&#39;ll leave you unfulfilled. So what else can bring you lasting motivation? One word: passion! Working on stuff compatible with personal interest make your work less like work and more like leisure! Personally, I enjoy working on data-oriented projects so I only need to find ..." />
+        <meta name="keywords" content="dataset" />
+        <meta name="description" content="Presentation layer The Presentation layer has the important role to respond to user needs for reporting, data analytics and other visualization or dashboarding applications. This layer&#39;s goal is to optimize read-access in the most flexible way as we can hardly predict all type of ad-hoc queries later triggered from these applications. In this post I&#39;ll define the physical data model to be used with a Redshift DWH Cloud platform. This platform implementation choice is important and influence considerably our physical data model. Redshift Redshift is &#34;bla bla bla&#34;. TODO: put the image Redshift under images/blog. Redshift&#39;s ..." />
 
 
 
@@ -78,51 +78,119 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2016-03-14T11:15:00+01:00"> Mon 14 March 2016</time>
+        <i class="fa fa-calendar"></i><time datetime="2016-06-22T13:35:00+02:00"> Wed 22 June 2016</time>
     </span>
 
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://datapfranc.github.io/tags/brd.html">BRD</a>
+	<a href="http://datapfranc.github.io/tags/dataset.html">dataset</a>
     
 </footer><!-- /.post-info -->              <!-- </div> -->
             </div>
             <h1 class="entry-title">
-                <a href="http://datapfranc.github.io/misc/brd_why/"
+                <a href="http://datapfranc.github.io/drafts/brd_pl_intro.html"
                 rel="bookmark"
-                title="Permalink to Why Book Review?">
-                    Why Book Review?
+                title="Permalink to Draft Example">
+                    Draft Example
                 </a>
             </h1>
 
             <div class="entry-content">
-                <!-- Status: draft -->
-<h3 id="passion">Passion</h3>
-<p>To keep on working on any personal project you need (above all) <strong>motivation</strong>.  Without any constraints or external pressure to work on something, what can help you maintain motivation? Can factors like potential gain, popularity or recognition help? Answer from personal experience: no.. these probably help at beginning, but on the long run they'll leave you unfulfilled.</p>
-<p>So what else can bring you lasting motivation? One word: passion!  Working on stuff compatible with personal interest make your work less like <em>work</em> and more like <em>leisure</em>! Personally, I enjoy working on data-oriented projects so I only need to find a subject that is appealing to me. Like most people, there are a lot of subjects I find interesting, but the challenge is to find one with digital data content available to be integrated inside a database.</p>
-<p>While procrastinating on book reviews sites, it hit me... that's it, I had found it, <a href="http://datapfranc.github.io/">BRD</a> was just born!  Although I would not qualify myself as a literary person, I enjoy reading books and reviews like <a href="https://www.librarything.com/work/23078/reviews/67790839">this one</a> or <a href="https://www.goodreads.com/review/show/9230871?book_show_action=true&amp;from_review_page=1">that one</a> could convince anyone to (re)read any book!</p>
-<h3 id="report-on-book-review">Report on Book review</h3>
-<p>I'm not sure how valuable these book reviews are by themselves... but they are certainly interesting and fun to read!  What sort of questions could we get from a BRD dataset?  Here are some thoughts:</p>
-<ol>
-<li>Trend of rating in time</li>
-<li>Reader appreciation in terms of their demographics</li>
-<li>Difference in rating depending on how helpful reviews are</li>
-<li>Reviews/rating statistics difference per site</li>
-<li>Finding same or similar reviews and reviewer</li>
-</ol>
-<p>There are certainly many more I can't envision at this time.</p>
-<h3 id="next-steps">Next steps</h3>
-<p>To make this happen, I need to work on quite a few things: 1) design a data model, 2) develop pipeline from harvesting step to loading into a database, 3) setting up the DB and pipeline workflow environment, 4) define and implement visualization tool, 5) define the backend Cloud provider, etc.</p>
-<p>Technology wise, here are some libraries/tools I plan to use:</p>
-<ul>
-<li>Postgres for the DB storing integration data locally (not for presentation)</li>
-<li><a href="https://github.com/spotify/luigi">Luigi</a> used as the elt/pipeline framework (plus customization)</li>
-<li><a href="scrapy.org">Scrapy</a> for the web harvesting bit</li>
-<li>Still not sure on the visualization side</li>
-<li><a href="https://www.python.org">Python</a> for pretty much all the glue around each component</li>
-</ul>
-<p>So let's jump at it.</p>
+                <h3 id="presentation-layer">Presentation layer</h3>
+<p>The Presentation layer has the important role to respond to user needs for reporting, data analytics and other visualization or dashboarding applications. This layer's goal is to optimize read-access in the most flexible way as we can hardly predict all type of ad-hoc queries later triggered from these applications.</p>
+<p>In this post I'll define the physical data model to be used with a <a href="http://amazon.com/redshift">Redshift</a> DWH Cloud platform.  This platform implementation choice is important and influence considerably our physical data model.</p>
+<h3 id="redshift">Redshift</h3>
+<p>Redshift is "bla bla bla".  </p>
+<p>TODO: put the image Redshift under images/blog.</p>
+<p>Redshift's features such as Distribution type, Column-oriented storage and compression scheme all play an important role.  I've gathered more details on a separate <a href="http://martin.ouellet.blogspot.ch/rrrr">post</a>) for those interested.</p>
+<h3 id="physical-data-model">Physical Data model</h3>
+<p>Our integration layer was highly normalized for greater flexibility, and this will penalize Redshift data access performance critical to our Presentation layer.  So one change is to denormalize tables such as merging descriptive tables (ex. user_..) and association ones (ex. review_similarto, work_title, ..) into their parent entity.  Also, Redshift support of <a href="http://amazon.com/rdsdatatype">data type</a> is more limited than Postgres, so for example all <code>UUID</code> and <code>TEXT</code> type will need to be changed.  Note that UUID are useful for data integration load as jobs can be parallelized with no dependency on surrogate keys lookup based on natural key, but much less useful to our Presentation layer.  </p>
+<p>The <code>TEXT</code> type are converted to <code>VARCHAR</code> using data input to determine its size, while <code>UUID</code> are replaced by <code>BIGINT</code>.<br/>
+For each table, we must also determine its Distribution type (using some assumption on expected frequent query join) and its Sort key, as well as the compression scheme of all attributes.</p>
+<h4 id="review">Review</h4>
+<p><code>REVIEW</code> table is, by far, our biggest table and needs to be distributed optimally.  Its distribution key should correspond to one FK that often gets used for joining another large table.  Two logical candidates are <code>book_id</code> for table <code>WORK</code> or <code>reviewer_id</code> for table <code>REVIEWER</code>.  At this point, it is quite difficult to know whether our analysis of reviews will be against users demographic or book information (or both), so without real utilization audit we'll have to decide arbitrarily... and that's ok:  one advantage of the layered-architecture is that we can always re-build  Presentation-layer following any changes of optimization goals (Integration-layer safely keeps our data)!</p>
+<p>Let's assume <code>book_id</code> is the best candidate for this, and hence colocate reviews with their associated books data.  However, another good candidate would be <code>reviewer_id</code> but this can only be determined much later after .  The</p>
+<p>We decide to sort rows based on review's date to optimize time-series chart.</p>
+<p>The compression chosen by Redshift was ....</p>
+<div class="highlight"><pre><span></span><span class="c1">-- Table DDL using 'id' as DISTRIBUTION-KEY and 'date_id' as SORT-KEY</span>
+<span class="c1">-- the encoding scheme</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">presentation</span><span class="p">.</span><span class="n">review</span> <span class="p">(</span>
+    <span class="c1">-- dimensions links</span>
+    <span class="n">id</span> <span class="nb">bigint</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">id_similarto</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">book_id</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">reviewer_id</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">site_id</span> <span class="nb">smallint</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">date_id</span> <span class="nb">smallint</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span> <span class="c1">--smart-key</span>
+    <span class="c1">-- facts</span>
+    <span class="n">rating</span> <span class="nb">smallint</span><span class="p">,</span>
+    <span class="n">nb_likes</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lang_code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">review</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30000</span><span class="p">),</span>  <span class="c1">--based on max found</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">book_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">presentation</span><span class="p">.</span><span class="n">book</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">reviewer_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">presentation</span><span class="p">.</span><span class="n">reviewer</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">site_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">presentation</span><span class="p">.</span><span class="n">site</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">date_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">presentation</span><span class="p">.</span><span class="n">dim_date</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">diststyle</span> <span class="k">KEY</span> <span class="n">distkey</span> <span class="p">(</span><span class="n">book_id</span><span class="p">)</span>
+<span class="n">sortkey</span><span class="p">(</span><span class="n">date_id</span><span class="p">)</span>
+<span class="p">;</span>
+
+<span class="c1">-- Use COPY command to let Redshift determine the best compression encoding scheme</span>
+
+<span class="c1">-- After data loaded, check out compression encoding chosen  </span>
+</pre></div>
+<h4 id="book">Book</h4>
+<p><code>BOOK</code> table holds informational data on Book reviewed.  For reason just explained we chose <code>id</code> as its distribution key. We also decided to de-normalize completely the titles used in the most popular language edition.  This will allow sending search query by title to all cluster nodes which will greatly improve performance.    </p>
+<p>We decide to sort rows based on ???.     </p>
+<p>The compression chosen by Redshift was ....</p>
+<div class="highlight"><pre><span></span><span class="c1">-- Table DDL using 'id' as DISTRIBUTION-KEY and ?? as SORT-KEY</span>
+<span class="c1">-- the encoding scheme</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">presentation</span><span class="p">.</span><span class="n">book</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">int</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">title_ori</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">ori_lang_code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">mds_code</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span>
+    <span class="c1">--calculate pop based on nb_of_reviews loaded</span>
+    <span class="c1">--pivot 10th most popular lang</span>
+    <span class="n">english_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">french_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">german_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">dutch_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">spanish_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">italian_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">japenese_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">swedish_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">finish_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">portuguese_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="n">diststyle</span> <span class="k">KEY</span> <span class="n">distkey</span> <span class="p">(</span><span class="n">book_id</span><span class="p">)</span>
+<span class="n">sortkey</span><span class="p">(</span><span class="o">??</span><span class="p">)</span>
+<span class="p">;</span>
+
+<span class="c1">-- Use COPY command to let Redshift determine the best compression encoding scheme</span>
+
+<span class="c1">-- After data loaded, check out compression encoding chosen  </span>
+</pre></div>
+<h4 id="reviewer">Reviewer</h4>
+<p><code>REVIEWER</code> table holds informational data on users having reviewed one or more books.  ....</p>
+<p>We decide to sort rows based on ???.     </p>
+<p>The compression chosen by Redshift was ....</p>
+<div class="highlight"><pre><span></span><span class="c1">-- Table DDL using '??' as DISTRIBUTION-KEY and `??` as SORT-KEY</span>
+
+
+<span class="n">diststyle</span> <span class="k">KEY</span> <span class="n">distkey</span> <span class="p">(</span><span class="n">book_id</span><span class="p">)</span>
+<span class="n">sortkey</span><span class="p">(</span><span class="o">??</span><span class="p">)</span>
+<span class="p">;</span>
+
+<span class="c1">-- Use COPY command to let Redshift determine the best compression encoding scheme</span>
+
+<span class="c1">-- After data loaded, check out compression encoding chosen  </span>
+</pre></div>
+<h3 id="other-tables">Other tables</h3>
+<p>Languages, Site, Date, Tag ...</p>
             </div>
 
             <!-- MO: added for series -->

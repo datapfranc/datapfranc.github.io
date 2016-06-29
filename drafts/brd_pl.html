@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en"
+>
+<head>
+    <title>Draft Example - DataPlatform Franchising</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="/images/favicon.png" rel="icon">
+
+<link rel="canonical" href="/drafts/brd_pl.html">
+
+        <meta name="author" content="Martin Ouellet" />
+        <meta name="keywords" content="dataset" />
+        <meta name="description" content="Presentation layer The Presentation layer has the important role to respond to user needs for reporting, data analytics and other visualization or dashboarding applications. This layer&#39;s goal is to optimize read-access in the most flexible way as we can hardly predict all type of ad-hoc queries later triggered from these applications. In this post I&#39;ll define the physical data model to be used with a Redshift DWH Cloud platform. This platform implementation choice is important and influence considerably our physical data model. Redshift Redshift is &#34;bla bla bla&#34;. TODO: put the image Redshift under images/blog. Redshift&#39;s ..." />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
+    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/theme/css/pygments/monokai.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+        <link href="/static/custom.css" rel="stylesheet">
+
+
+</head>
+<body>
+<!-- <script src="/theme/js/jquery.min.js"></script> -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="/" class="navbar-brand">
+<img src="/images/logo.png" width="36"/> DataPlatform Franchising            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="/about.html">
+                             About
+                          </a></li>
+                         <li><a href="/context.html">
+                             Context
+                          </a></li>
+                         <li><a href="/brd_intro.html">
+                             BRD
+                          </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <div class="well well-sm">
+              <!-- <div class="panel-heading"> -->
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-06-22T13:35:00+02:00"> Wed 22 June 2016</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="/tags/dataset.html">dataset</a>
+    
+</footer><!-- /.post-info -->              <!-- </div> -->
+            </div>
+            <h1 class="entry-title">
+                <a href="/drafts/brd_pl.html"
+                rel="bookmark"
+                title="Permalink to Draft Example">
+                    Draft Example
+                </a>
+            </h1>
+
+            <div class="entry-content">
+                <h3 id="presentation-layer">Presentation layer</h3>
+<p>The Presentation layer has the important role to respond to user needs for reporting, data analytics and other visualization or dashboarding applications. This layer's goal is to optimize read-access in the most flexible way as we can hardly predict all type of ad-hoc queries later triggered from these applications.</p>
+<p>In this post I'll define the physical data model to be used with a <a href="http://amazon.com/redshift">Redshift</a> DWH Cloud platform.  This platform implementation choice is important and influence considerably our physical data model.</p>
+<h3 id="redshift">Redshift</h3>
+<p>Redshift is "bla bla bla".  </p>
+<p>TODO: put the image Redshift under images/blog.</p>
+<p>Redshift's features such as Distribution type, Column-oriented storage and compression scheme all play an important role.  I've gathered more details on a separate <a href="http://martin.ouellet.blogspot.ch/rrrr">post</a>) for those interested.</p>
+<h3 id="physical-data-model">Physical Data model</h3>
+<p>Our integration layer was highly normalized for greater flexibility, and this will penalize Redshift data access performance critical to our Presentation layer.  So one change is to denormalize tables such as merging descriptive tables (ex. user_..) and association ones (ex. review_similarto, work_title, ..) into their parent entity.  Also, Redshift support of <a href="http://amazon.com/rdsdatatype">data type</a> is more limited than Postgres, so for example all <code>UUID</code> and <code>TEXT</code> type will need to be changed.  Note that UUID are useful for data integration load as jobs can be parallelized with no dependency on surrogate keys lookup based on natural key, but much less useful to our Presentation layer.  </p>
+<p>The <code>TEXT</code> type are converted to <code>VARCHAR</code> using data input to determine its size, while <code>UUID</code> are replaced by <code>BIGINT</code>.<br/>
+For each table, we must also determine its Distribution type (using some assumption on expected frequent query join) and its Sort key, as well as the compression scheme of all attributes.</p>
+<h4 id="review">Review</h4>
+<p><code>REVIEW</code> table is, by far, our biggest table and needs to be distributed optimally.  Its distribution key should correspond to one FK that often gets used for joining another large table.  Two logical candidates are <code>book_id</code> for table <code>WORK</code> or <code>reviewer_id</code> for table <code>REVIEWER</code>.  At this point, it is quite difficult to know whether our analysis of reviews will be against users demographic or book information (or both), so without real utilization audit we'll have to decide arbitrarily... and that's ok:  one advantage of the layered-architecture is that we can always re-build  Presentation-layer following any changes of optimization goals (Integration-layer safely keeps our data)!</p>
+<p>Let's assume <code>book_id</code> is the best candidate for this, and hence colocate reviews with their associated books data.  However, another good candidate would be <code>reviewer_id</code> but this can only be determined much later after .  The</p>
+<p>We decide to sort rows based on review's date to optimize time-series chart.</p>
+<p>The compression chosen by Redshift was ....</p>
+<div class="highlight"><pre><span></span><span class="c1">-- Table DDL using 'id' as DISTRIBUTION-KEY and 'date_id' as SORT-KEY</span>
+<span class="c1">-- the encoding scheme</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">presentation</span><span class="p">.</span><span class="n">review</span> <span class="p">(</span>
+    <span class="c1">-- dimensions links</span>
+    <span class="n">id</span> <span class="nb">bigint</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">id_similarto</span> <span class="nb">bigint</span><span class="p">,</span>
+    <span class="n">book_id</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">reviewer_id</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">site_id</span> <span class="nb">smallint</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+    <span class="n">date_id</span> <span class="nb">smallint</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span> <span class="c1">--smart-key</span>
+    <span class="c1">-- facts</span>
+    <span class="n">rating</span> <span class="nb">smallint</span><span class="p">,</span>
+    <span class="n">nb_likes</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lang_code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">review</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30000</span><span class="p">),</span>  <span class="c1">--based on max found</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">book_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">presentation</span><span class="p">.</span><span class="n">book</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">reviewer_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">presentation</span><span class="p">.</span><span class="n">reviewer</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">site_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">presentation</span><span class="p">.</span><span class="n">site</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+    <span class="k">foreign</span> <span class="k">key</span> <span class="p">(</span><span class="n">date_id</span><span class="p">)</span> <span class="k">references</span> <span class="n">presentation</span><span class="p">.</span><span class="n">dim_date</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">diststyle</span> <span class="k">KEY</span> <span class="n">distkey</span> <span class="p">(</span><span class="n">book_id</span><span class="p">)</span>
+<span class="n">sortkey</span><span class="p">(</span><span class="n">date_id</span><span class="p">)</span>
+<span class="p">;</span>
+
+<span class="c1">-- Use COPY command to let Redshift determine the best compression encoding scheme</span>
+
+<span class="c1">-- After data loaded, check out compression encoding chosen  </span>
+</pre></div>
+<h4 id="book">Book</h4>
+<p><code>BOOK</code> table holds informational data on Book reviewed.  For reason just explained we chose <code>id</code> as its distribution key. We also decided to de-normalize completely the titles used in the most popular language edition.  This will allow sending search query by title to all cluster nodes which will greatly improve performance.    </p>
+<p>We decide to sort rows based on ???.     </p>
+<p>The compression chosen by Redshift was ....</p>
+<div class="highlight"><pre><span></span><span class="c1">-- Table DDL using 'id' as DISTRIBUTION-KEY and ?? as SORT-KEY</span>
+<span class="c1">-- the encoding scheme</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">presentation</span><span class="p">.</span><span class="n">book</span> <span class="p">(</span>
+    <span class="n">id</span> <span class="nb">int</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+    <span class="n">title_ori</span> <span class="nb">text</span><span class="p">,</span>
+    <span class="n">ori_lang_code</span> <span class="nb">char</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">mds_code</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span>
+    <span class="c1">--calculate pop based on nb_of_reviews loaded</span>
+    <span class="c1">--pivot 10th most popular lang</span>
+    <span class="n">english_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">french_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">german_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">dutch_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">spanish_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">italian_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">japenese_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">swedish_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">finish_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+    <span class="n">portuguese_title</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="n">diststyle</span> <span class="k">KEY</span> <span class="n">distkey</span> <span class="p">(</span><span class="n">book_id</span><span class="p">)</span>
+<span class="n">sortkey</span><span class="p">(</span><span class="o">??</span><span class="p">)</span>
+<span class="p">;</span>
+
+<span class="c1">-- Use COPY command to let Redshift determine the best compression encoding scheme</span>
+
+<span class="c1">-- After data loaded, check out compression encoding chosen  </span>
+</pre></div>
+<h4 id="reviewer">Reviewer</h4>
+<p><code>REVIEWER</code> table holds informational data on users having reviewed one or more books.  ....</p>
+<p>We decide to sort rows based on ???.     </p>
+<p>The compression chosen by Redshift was ....</p>
+<div class="highlight"><pre><span></span><span class="c1">-- Table DDL using '??' as DISTRIBUTION-KEY and `??` as SORT-KEY</span>
+
+
+<span class="n">diststyle</span> <span class="k">KEY</span> <span class="n">distkey</span> <span class="p">(</span><span class="n">book_id</span><span class="p">)</span>
+<span class="n">sortkey</span><span class="p">(</span><span class="o">??</span><span class="p">)</span>
+<span class="p">;</span>
+
+<span class="c1">-- Use COPY command to let Redshift determine the best compression encoding scheme</span>
+
+<span class="c1">-- After data loaded, check out compression encoding chosen  </span>
+</pre></div>
+<h3 id="other-tables">Other tables</h3>
+<p>Languages, Site, Date, Tag ...</p>
+            </div>
+
+            <!-- MO: added for series -->
+
+            <!-- /.entry-content -->
+    <hr />
+    <!-- AddThis Button BEGIN -->
+    <!--<div class="addthis_toolbox addthis_default_style">
+            <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+            <a class="addthis_button_tweet"></a>
+            <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    </div>-->
+
+
+
+   <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <!-- <div class="addthis_sharing_toolbox"></div> -->
+    <div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+        <a class="addthis_counter_facebook"></a>
+        <a class="addthis_counter_twitter"></a>
+        <a class="addthis_button_google_plusone_share"></a>
+        <a class="addthis_button_email"></a>
+        <a class="addthis_button_linkedin"></a>
+        <a class="addthis_button_compact"></a>
+        <a class="addthis_counter addthis_bubble_style"></a>
+    </div>
+
+
+    <!-- AddThis Button END -->
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+
+
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://github.com/mart2010"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+                <li class="list-group-item"><a href="https://twitter.com/datapfranc"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
+                <li class="list-group-item"><a href="http://linkedin.com/in/martinouellet"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="http://martin-ouellet.blogspot.ch/"><i class="fa fa-personal-blog-square fa-lg"></i> Personal blog</a></li>
+              </ul>
+            </li>
+
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Recent Posts</span></h4>
+                <ul class="list-group" id="recentposts">
+                    <li class="list-group-item">
+                        <a href="/misc/brd_why/">
+                            Why Book Review?
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/misc/BRD_DI_part1/">
+                            How to do data integration, BRD example
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/misc/BRD_DI_part2/">
+                            How to do data integration, BRD example (part2)
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/misc/BRD_DI_part3/">
+                            How to do data integration, BRD example (part3)
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+            <li class="list-group-item"><a href="/tags.html"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group list-inline tagcloud" id="tags">
+                    <li class="list-group-item tag-1">
+                        <a href="/tags/brd.html">
+                            BRD
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="/tags/data-integration.html">
+                            data integration
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        <!--     <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://www.dbms2.com/" target="_blank">
+                DBMS2
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://librarything.com/" target="_blank">
+                Librarything
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://www.goodreads.com/" target="_blank">
+                Goodreads
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://babelio.com/" target="_blank">
+                Babelio
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://cloudofdata.com/blog/" target="_blank">
+                Paul Miller blog
+            </a>
+        </li>
+      </ul>
+    </li>
+ -->
+    </ul>
+</section>            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="well well-lg" id="footer-well">
+      <div class="container">
+      <div class="row">
+          <!-- MO done to not show comment
+           <div class="col-sm-4">
+               <div id="RecentComments" class="dsq-widget">
+                <h3 style="margin-bottom:0.5px;">Recent Comments</h3>
+                <script type="text/javascript" src="http://.disqus.com/recent_comments_widget.js?num_items=5&hide_mods=0&hide_avatars=0&avatar_size=32&excerpt_length=100"></script>
+               </div>
+          -->
+           </div>
+           <div class="col-sm-4">
+               <h3 style="margin-bottom:0.5px;">Websites I Like</h3>
+               </br>
+               <ul style="list-style-type:circle">
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://www.dbms2.com/" target="_blank">
+                        DBMS2
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://librarything.com/" target="_blank">
+                        Librarything
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="https://www.goodreads.com/" target="_blank">
+                        Goodreads
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="https://babelio.com/" target="_blank">
+                        Babelio
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://cloudofdata.com/blog/" target="_blank">
+                        Paul Miller blog
+                    </a>
+                  </li>
+                <div>
+              </ul>
+
+             <!-- // <script src="https://apis.google.com/js/platform.js" async defer></script> -->
+              <!-- <g:plusone size="standard(bubble)" data-href="http://the-data-show.com"></g:plusone> -->
+              <br>
+              <h3>Share DataPlatform Franchising</h3>
+                <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="" addthis:title="Check out DataPlatform Franchising!">
+                  <a class="addthis_button_facebook"></a>
+                  <a class="addthis_button_twitter"></a>
+                  <a class="addthis_button_google_plusone_share"></a>
+                  <a class="addthis_button_email"></a>
+                  <a class="addthis_button_linkedin"></a>
+                  <a class="addthis_button_rss_follow" addthis:userid="/feeds/all.atom.xml"></a>
+                  <a class="addthis_button_compact"></a>
+                </div>
+                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-572cd8ecd555b197"></script>
+           </div>
+           <div class="col-sm-4">
+<div id="aboutme" align="center">
+	<h3 style="margin-bottom:0.5px;">About Martin Ouellet</h3><br/>
+        <p>
+            <img width="60%" class="img-thumbnail" src="/images/headshot_2.jpg"/>
+        </p>
+    <p> 
+        I'm a data architect by choice. I enjoy doing backend stuff and data-oriented projects.<p>Find out more about me at <strong><a href="http://martin-ouellet.blogspot.ch" title="Personal Archive">martin-ouellet</a></strong></p><p>You can also contact me <a href='mailto:mart2010.l@gmail.com?subject=dataPFranc-feedback'>here</a>
+    </p>
+</div>
+           </div>
+      </div>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Martin Ouellet
+            &middot; Powered by <a href="http://python.org/" target="_blank">Python</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            adapted from <a href="http://beneathdata.com" target="_blank">beneathdata</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+   </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="/theme/js/respond.min.js"></script>
+
+<!-- Fix scrolling issues to internal HREFs that get positioned behind navbar -->
+<!-- http://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header -->
+<script src="/theme/js/href_scroll.js"></script>
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-49087367-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>

@@ -11,7 +11,7 @@
 
     <link href="/images/favicon.png" rel="icon">
 
-<link rel="canonical" href="/drafts/brd_stats.html">
+<link rel="canonical" href="/drafts/brd_basicstat.html">
 
         <meta name="author" content="Martin Ouellet" />
         <meta name="keywords" content="dataset" />
@@ -76,7 +76,7 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2016-06-21T14:47:00+02:00"> Tue 21 June 2016</time>
+        <i class="fa fa-calendar"></i><time datetime="2016-06-28T14:47:00+02:00"> Tue 28 June 2016</time>
     </span>
 
 
@@ -87,7 +87,7 @@
 </footer><!-- /.post-info -->              <!-- </div> -->
             </div>
             <h1 class="entry-title">
-                <a href="/drafts/brd_stats.html"
+                <a href="/drafts/brd_basicstat.html"
                 rel="bookmark"
                 title="Permalink to BRD summary stats">
                     BRD summary stats
@@ -96,7 +96,7 @@
 
             <div class="entry-content">
                 <p>After a few weeks spent harvesting and integrating a sample of book reviews, it is time to share some statistics.  </p>
-<p>Over 22 millions reviews have been harvested on about 300K books (for simplicity, the term Book is used instead of Work).  I've started harvesting book sequentially (by id) and later processed them by popularity as a way to get more reviews.  Some Work catalogued in Librarything could not be found in other sites while others had no reviews.</p>
+<p>Over <strong>22 millions</strong> reviews have been harvested on about 300K books (for simplicity, the term Book is used instead of Work).  I've started harvesting book sequentially (by id) and later processed them by popularity as a way to get more reviews.  Some Work catalogued in Librarything could not be found in other sites while others had no reviews.</p>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
@@ -127,12 +127,7 @@
 </tr>
 </tbody>
 </table>
-<p>Notes:</p>
-<ul>
-<li>I did not contact Amazon to get my spider working, and decided not to harvest their reviews</li>
-<li>a limit of 100 pages of reviews are available from Goodreads website, so popular book may not have all reviews (max available=3030)</li>
-<li>Babelio is dedicated to french literature, and books found and reviews harvested may not reflect its popularity (sample is biased toward english and/or international best seller).</li>
-</ul>
+<p>Notes on Amazon [ref]I did not contact Amazon to get my spider working, and decided not to harvest their reviews[/ref], Goodreads[ref]a limit of 100 pages of reviews are available from Goodreads website, so popular book may not have all reviews (max available=3030)[/ref] and Babelio[ref]Babelio is dedicated to french literature, and books found and reviews harvested may not reflect its popularity (sample is biased toward english and/or international best seller)[/ref]</p>
 <h3 id="reviewers">Reviewers</h3>
 <p>How many reviewers wrote these 22M reviews?</p>
 <table class="table table-hover table-striped">
@@ -363,9 +358,9 @@
 </tr>
 </tbody>
 </table>
-<p>(number here are lower as same 2 reviews are counted as one duplicates).</p>
+<p>(number here are lower as same 2 reviews are counted as one duplicate).</p>
 <p>It seems like a large proportion are originating from users copying their reviews between Librarything and Goodreads.  </p>
-<p>If we look at some examples, we can distinguish a few cases:</p>
+<p>If we look at some examples, we can distinguish various cases:</p>
 <h4 id="case-identical-duplicates">Case: Identical duplicates</h4>
 <table class="table table-hover table-striped">
 <thead>
@@ -531,72 +526,73 @@
 </tr>
 </tbody>
 </table>
-<p>Here the first two have similarity index = 0.91, due to the 'EDITORIAL REVIEW:' added to one of the review.  The second example could well be case of plagiarism with similarity index = 0.7804.</p>
-<p>(review_id: 13250,9843 and 13773, 13368)</p>
-<p>Duplicates assessment:</p>
-<ul>
-<li>Some other may be pure coincidental: the one giving citation only (32895, 25544)</li>
-<li>Could it be that people simply copy reviews to get more: see 1002184-sara/6808758-shirley (revid 35315 and 32345), where sara has much more, could it be all copies .. check out username with many copies!!</li>
-</ul>
-<p>563106-mark-sellers / 672130-emily</p>
+<p>Here the first two have similarity index = 0.91, due to the 'EDITORIAL REVIEW:' added to one of the review.  The second example could well be case of plagiarism with similarity index = 0.7804. (review_id: 13250,9843 and 13773, 13368)</p>
+<h4 id="case-quotation">Case: Quotation</h4>
+<table class="table table-hover table-striped">
+<thead>
+<tr>
+<th>Site</th>
+<th>Username</th>
+<th>Published Date</th>
+<th>Review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Goodreads</td>
+<td>Roddy Williams</td>
+<td>2013-08-25</td>
+<td><em>'The metropolis of New Crobuzon sprawls at the centre of the world. Humans and mutants and arcane races brood in the gloom beneath its chimneys,...'</em></td>
+</tr>
+<tr>
+<td>Goodreads</td>
+<td>Feistytiger</td>
+<td>2012-05-09</td>
+<td><em>The metropolis of New Crobuzon sprawls at the centre of its own bewildering world. Humans and mutants and arcane races throng the gloom beneath its chimneys,,..</em></td>
+</tr>
+</tbody>
+</table>
+<p>Example like these are taken from a back cover of a book (this one was from a China Miéville's book), so most probably coincidental. (review_id: 32895, 25554)</p>
+<h4 id="case-summary-stats">Case Summary stats</h4>
+<p>In summary, it seems the bulk of duplicates originate from people copying their reviews across sites or due to technical issues :</p>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
 <th>Case/Site</th>
-<th>Librarything</th>
-<th align="right">Goodreads</th>
-<th align="right">Babelio</th>
+<th># of occurence</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Case 1 (same date, username &amp; site)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>47.3K</td>
 </tr>
 <tr>
 <td>Case 2 (same date &amp; site, diff username)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>2.7K</td>
 </tr>
 <tr>
-<td>Case 3 (same username &amp; date, diff site)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>Case 3 (same username &amp; date, diff date)</td>
+<td>7.9K</td>
 </tr>
 <tr>
-<td>Case 4 (same username &amp; site, diff date)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>Case 4 (same username &amp; site, diff site)</td>
+<td>2.6K</td>
 </tr>
 <tr>
 <td>Case 5 (same username, diff date &amp; site)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>5.2K</td>
 </tr>
 <tr>
 <td>Case 6 (same date, diff username &amp; site)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>47.7K</td>
 </tr>
 <tr>
-<td>Case 7 (same site, diff date &amp; username)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>Case 7 (diff site, date &amp; username)</td>
+<td>164.9K</td>
 </tr>
 </tbody>
 </table>
-<h3 id="international-reviews">International Reviews</h3>
-<p>What about the languages used for reviewing?  Let's look at the distribution graph of languages.</p>
-<p>I used the Python langid module (ref) to detect the language used in review.  To avoid getting unpredictable results it was used for reviews with at least 50 characters.   </p>
-<p>Although Librarything classifies reviews by language, these were not used for consistency with the other site and to avoid some issues where language was not set or wrong.  </p>
             </div>
 
             <!-- MO: added for series -->
@@ -655,17 +651,17 @@
                         </a>
                     </li>
                     <li class="list-group-item">
-                        <a href="/misc/BRD_DI_part1/">
+                        <a href="/misc/brd_di_part1/">
                             How to do data integration, BRD example
                         </a>
                     </li>
                     <li class="list-group-item">
-                        <a href="/misc/BRD_DI_part2/">
+                        <a href="/misc/brd_di_part2/">
                             How to do data integration, BRD example (part2)
                         </a>
                     </li>
                     <li class="list-group-item">
-                        <a href="/misc/BRD_DI_part3/">
+                        <a href="/misc/brd_di_part3/">
                             How to do data integration, BRD example (part3)
                         </a>
                     </li>

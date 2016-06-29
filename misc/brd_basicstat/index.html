@@ -9,28 +9,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-    <link href="/images/favicon.png" rel="icon">
+    <link href="http://datapfranc.github.io/images/favicon.png" rel="icon">
 
-<link rel="canonical" href="/drafts/brd_stats.html">
+<link rel="canonical" href="http://datapfranc.github.io/misc/brd_basicstat/">
 
         <meta name="author" content="Martin Ouellet" />
-        <meta name="keywords" content="dataset" />
-        <meta name="description" content="After a few weeks spent harvesting and integrating a sample of book reviews, it is time to share some statistics. Over 22 millions reviews have been harvested on about 300K books (for simplicity, the term Book is used instead of Work). I&#39;ve started harvesting book sequentially (by id) and later processed them by popularity as a way to get more reviews. Some Work catalogued in Librarything could not be found in other sites while others had no reviews. Statistics Librarything Goodreads Babelio Book sample size 300K -- -- Book found -- 216K 78K Number of reviews 1.2M 20.5M 415K Notes ..." />
+        <meta name="keywords" content="BRD,dataset" />
+        <meta name="description" content="After a few weeks spent harvesting and integrating a sample of book reviews, it is time to share some statistics. Over 22 millions reviews have been harvested on about 300K books (I use the term Book here instead of Work). I&#39;ve started harvesting book sequentially (by id) and later processed them by popularity as a way to get more reviews. Some Book catalogued in Librarything could not be found in other sites while others had no reviews. Statistics Librarything Goodreads Babelio Book sample size 300K -- -- Book found -- 216K 78K Number of reviews 1.2M 20.5M 415K Notes on ..." />
 
 
 
     <!-- Bootstrap -->
-        <link rel="stylesheet" href="/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
-    <link href="/theme/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
+    <link href="http://datapfranc.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
 
-    <link href="/theme/css/pygments/monokai.css" rel="stylesheet">
-    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
-        <link href="/static/custom.css" rel="stylesheet">
+    <link href="http://datapfranc.github.io/theme/css/pygments/monokai.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/style.css" type="text/css"/>
+        <link href="http://datapfranc.github.io/static/custom.css" rel="stylesheet">
 
+        <link href="http://datapfranc.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="DataPlatform Franchising ATOM Feed"/>
 
 </head>
 <body>
-<!-- <script src="/theme/js/jquery.min.js"></script> -->
+<!-- <script src="http://datapfranc.github.io/theme/js/jquery.min.js"></script> -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -42,23 +44,23 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="/" class="navbar-brand">
-<img src="/images/logo.png" width="36"/> DataPlatform Franchising            </a>
+            <a href="http://datapfranc.github.io/" class="navbar-brand">
+<img src="http://datapfranc.github.io/images/logo.png" width="36"/> DataPlatform Franchising            </a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
-                         <li><a href="/about.html">
+                         <li><a href="http://datapfranc.github.io/about.html">
                              About
                           </a></li>
-                         <li><a href="/context.html">
+                         <li><a href="http://datapfranc.github.io/context.html">
                              Context
                           </a></li>
-                         <li><a href="/brd_intro.html">
+                         <li><a href="http://datapfranc.github.io/brd_intro.html">
                              BRD
                           </a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+                <li><a href="http://datapfranc.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -76,18 +78,20 @@
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2016-06-21T14:47:00+02:00"> Tue 21 June 2016</time>
+        <i class="fa fa-calendar"></i><time datetime="2016-06-28T14:47:00+02:00"> Tue 28 June 2016</time>
     </span>
 
 
 
 <span class="label label-default">Tags</span>
-	<a href="/tags/dataset.html">dataset</a>
+	<a href="http://datapfranc.github.io/tags/brd.html">BRD</a>
+        /
+	<a href="http://datapfranc.github.io/tags/dataset.html">dataset</a>
     
 </footer><!-- /.post-info -->              <!-- </div> -->
             </div>
             <h1 class="entry-title">
-                <a href="/drafts/brd_stats.html"
+                <a href="http://datapfranc.github.io/misc/brd_basicstat/"
                 rel="bookmark"
                 title="Permalink to BRD summary stats">
                     BRD summary stats
@@ -96,7 +100,7 @@
 
             <div class="entry-content">
                 <p>After a few weeks spent harvesting and integrating a sample of book reviews, it is time to share some statistics.  </p>
-<p>Over 22 millions reviews have been harvested on about 300K books (for simplicity, the term Book is used instead of Work).  I've started harvesting book sequentially (by id) and later processed them by popularity as a way to get more reviews.  Some Work catalogued in Librarything could not be found in other sites while others had no reviews.</p>
+<p>Over <strong>22 millions</strong> reviews have been harvested on about 300K books (I use the term Book here instead of Work).  I've started harvesting book sequentially (by id) and later processed them by popularity as a way to get more reviews.  Some Book catalogued in Librarything could not be found in other sites while others had no reviews.</p>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
@@ -127,13 +131,8 @@
 </tr>
 </tbody>
 </table>
-<p>Notes:</p>
-<ul>
-<li>I did not contact Amazon to get my spider working, and decided not to harvest their reviews</li>
-<li>a limit of 100 pages of reviews are available from Goodreads website, so popular book may not have all reviews (max available=3030)</li>
-<li>Babelio is dedicated to french literature, and books found and reviews harvested may not reflect its popularity (sample is biased toward english and/or international best seller).</li>
-</ul>
-<h3 id="reviewers">Reviewers</h3>
+<p>Notes on Amazon <sup id="sf-brd_basicstat-1-back"><a href="#sf-brd_basicstat-1" title="I did not contact Amazon to get my spider working (their sites are not robot friendly since many try to get financial advantages from their data), and decided not to harvest their reviews" class="simple-footnote">1</a></sup>, Goodreads <sup id="sf-brd_basicstat-2-back"><a href="#sf-brd_basicstat-2" title="Goodreads has a limit of 100 pages of reviews available on website, so popular book may not have all reviews (max available=3030)" class="simple-footnote">2</a></sup> and Babelio <sup id="sf-brd_basicstat-3-back"><a href="#sf-brd_basicstat-3" title="Babelio is dedicated to french literature, and books found and reviews harvested may not reflect its popularity (sample is biased toward english and/or international best seller)" class="simple-footnote">3</a></sup></p>
+<h2 id="reviewers">Reviewers</h2>
 <p>How many reviewers wrote these 22M reviews?</p>
 <table class="table table-hover table-striped">
 <thead>
@@ -153,7 +152,7 @@
 </tr>
 <tr>
 <td>Goodreads</td>
-<td>2.486M</td>
+<td>2,486K</td>
 <td>8.26</td>
 <td>130.21</td>
 </tr>
@@ -165,9 +164,9 @@
 </tr>
 </tbody>
 </table>
-<p>It seems reviewers are more productive on Librarything and Babelio (both actually have very similar reviewers behavior), however the number of reviews per Book in Goodreads is larger by a factor of 10! (these numbers consider all reviews, even duplicate ones).</p>
-<h3 id="most-reviewed-books">Most reviewed Books</h3>
-<p>The top 10 most reviewed book from the book sample:</p>
+<p>It seems reviewers are more productive on Librarything and Babelio (both actually have very similar reviewers behavior), however the number of reviews per Book in Goodreads is larger by a factor of 10 (due to its much larger user base).</p>
+<h2 id="most-reviewed-books">Most reviewed Books</h2>
+<p>The top 10 most reviewed books from this sample are:</p>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
@@ -258,114 +257,135 @@
 </tr>
 </tbody>
 </table>
-<h3 id="average-appreciation-and-correlation">Average appreciation and correlation</h3>
+<h2 id="appreciation-differences-and-correlation">Appreciation differences and correlation</h2>
 <p>Whose site reviewers give more favorable critic?  To answer that we need to compare average rating at <u>book</u> level.</p>
-<p>For simplicity, let's define the metric <em>score</em> as being the average rating for a book on a given site (after rating was standardized on a 10 points scale).  This following gives the average and standard deviation for <em>score</em><sub>lt</sub> (Librarything), <em>score</em><sub>gr</sub> (Goodreads) and <em>score</em><sub>ba</sub> (Babelio) over all books:</p>
+<p>For simplicity, let's define the metric <strong><em>score</em></strong> as being the average rating for a book on a given site (after rating was standardized on a 10 points scale).  The following table gives the average and standard deviation of <strong><em>score</em><sub>lt</sub></strong> (Librarything), <strong><em>score</em><sub>gr</sub></strong> (Goodreads) and <strong><em>score</em><sub>ba</sub></strong> (Babelio) calculated over all books:</p>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
 <th>Site</th>
 <th>Avg</th>
-<th align="right">Std dev</th>
+<th>Std dev</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><em>score</em><sub>lt</sub></td>
 <td>7.496</td>
-<td align="right">1.639</td>
+<td>1.639</td>
 </tr>
 <tr>
 <td><em>score</em><sub>gr</sub></td>
 <td>7.508</td>
-<td align="right">1.880</td>
+<td>1.880</td>
 </tr>
 <tr>
 <td><em>score</em><sub>ba</sub></td>
 <td>6.987</td>
-<td align="right">2.386</td>
+<td>2.386</td>
 </tr>
 </tbody>
 </table>
-<p>Reviewers from both Goodreads and Librarything are very similar in this respect, whereas reviewers from Babelio are more harsh... However, before deducting another French reputation, let's note that the confidence level of Babelio's average is lower as based on a smaller number of reviews (as shown by its higher standard deviation).  </p>
-<p>Are reviewer's between different site in agreement with each other?  This can be answered by calculating correlation coefficient between the score variables defined:</p>
+<p>Reviewers from both Goodreads and Librarything are very similar in this respect, whereas reviewers from Babelio are more harsh...before drawing conclusion, let's note that the confidence level of Babelio's average is lower (based on a smaller number of reviews as shown by its higher standard deviation).  </p>
+<p>Also, there is not much variation in user's rating, with standard deviation less than 2 on a 10 point scale, it seems most people give similar rating.</p>
+<p>Are reviewer's between different site in agreement with each other?  This can be answered by calculating correlation coefficient between the score variables:</p>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
 <th>Site</th>
 <th>Librarything</th>
-<th align="right">Goodreads</th>
-<th align="right">Babelio</th>
+<th>Goodreads</th>
+<th>Babelio</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Librarything</td>
 <td>1</td>
-<td align="right">+0.377</td>
-<td align="right">+0.145</td>
+<td>+0.377</td>
+<td>+0.145</td>
 </tr>
 <tr>
 <td>Goodreads</td>
 <td>--</td>
-<td align="right">1</td>
-<td align="right">+0.18</td>
+<td>1</td>
+<td>+0.18</td>
 </tr>
 <tr>
 <td>Babelio</td>
 <td>--</td>
-<td align="right">--</td>
-<td align="right">1</td>
+<td>--</td>
+<td>1</td>
 </tr>
 </tbody>
 </table>
-<p>Yes all scores are positively correlated but not by much.  It seems reviewers give on average similar rating, but only agree moderately on which books are good or bad.  This is especially true between Babelio and the other sites, where cultural differences seems to be at play.    </p>
-<h3 id="duplicated-reviews">Duplicated Reviews</h3>
-<p>Over 581K reviews were identified as very similar!  These were found using the following simple rules:
-   - Only comparing reviews from same Work (logical)
-   - Comparing reviews with text of at least 100 characters long (ignoring similar short reviews)
-   - Comparing reviews with text of similar size (± +/- 8%)
-   - Flag reviews as duplicates when their <strong>trigram</strong> similarity index is above 0.7 (although this may seem small, most similar reviews had index larger than 0.9)</p>
-<p>| Metric  | Value |
-| Total nb of dupes | 581K<sup>*</sup> |
-| Avg dupes per Book | 2.89 |
-| Ratio (avg dupes/avg nb of reviews) per book | 2.6% |</p>
-<p><sup>* </sup> here same review found twice count for 2 duplicates)</p>
+<p>Yes all scores are positively correlated but not by much.  It seems reviewers give on average similar rating, but only agree moderately on which books are good or bad.  This is especially true between Babelio and the other sites, where cultural differences seems to be at play.     </p>
+<h2 id="duplicated-reviews">Duplicated Reviews</h2>
+<p>Over <strong>581K</strong> reviews were identified as very similar!  These were found using the following simple rules:</p>
+<ul>
+<li>Only comparing reviews from same Work (logical)</li>
+<li>Comparing reviews with text of at least 100 characters long (ignoring similar short reviews)</li>
+<li>Comparing reviews with text of similar size (± +/- 8%)</li>
+<li>Flag reviews as duplicates when their <strong>trigram</strong> <a href="http://datapfranc.github.io/misc/brd_di_part3/">similarity index</a> is above 0.7 (although this may seem small, most similar reviews had index larger than 0.9)</li>
+</ul>
+<table class="table table-hover table-striped">
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total nb of duplicates<sup>*</sup></td>
+<td>581K</td>
+</tr>
+<tr>
+<td>Avg duplicates per Book</td>
+<td>2.89</td>
+</tr>
+<tr>
+<td>Ratio (avg duplicates/avg nb of reviews) per book</td>
+<td>2.6%</td>
+</tr>
+</tbody>
+</table>
+<p><sup>* </sup>here 2 reviews identical count for 2 duplicates</p>
 <p>These numbers are intriguing and encouraged further investigation.  So let's drill-down the analysis a bit further...</p>
-<p>Are these duplicates within site or across sites?</p>
+<h4 id="are-these-duplicates-within-or-across-sites">Are these duplicates within or across sites?</h4>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
 <th>Site</th>
 <th>Librarything</th>
-<th align="right">Goodreads</th>
-<th align="right">Babelio</th>
+<th>Goodreads</th>
+<th>Babelio</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Librarything</td>
 <td>17K</td>
-<td align="right">215K</td>
-<td align="right">0.7K</td>
+<td>215K</td>
+<td>0.7K</td>
 </tr>
 <tr>
 <td>Goodreads</td>
 <td>--</td>
-<td align="right">60K</td>
-<td align="right">4K</td>
+<td>60K</td>
+<td>4K</td>
 </tr>
 <tr>
 <td>Babelio</td>
 <td>--</td>
-<td align="right">--</td>
-<td align="right">2K</td>
+<td>--</td>
+<td>2K</td>
 </tr>
 </tbody>
 </table>
-<p>(number here are lower as same 2 reviews are counted as one duplicates).</p>
+<p>(Number here are lower as identical 2 reviews are counted as only one duplicate).</p>
 <p>It seems like a large proportion are originating from users copying their reviews between Librarything and Goodreads.  </p>
-<p>If we look at some examples, we can distinguish a few cases:</p>
+<p>Let's look at some examples to distinguish various cases:</p>
 <h4 id="case-identical-duplicates">Case: Identical duplicates</h4>
 <table class="table table-hover table-striped">
 <thead>
@@ -531,72 +551,73 @@
 </tr>
 </tbody>
 </table>
-<p>Here the first two have similarity index = 0.91, due to the 'EDITORIAL REVIEW:' added to one of the review.  The second example could well be case of plagiarism with similarity index = 0.7804.</p>
-<p>(review_id: 13250,9843 and 13773, 13368)</p>
-<p>Duplicates assessment:</p>
-<ul>
-<li>Some other may be pure coincidental: the one giving citation only (32895, 25544)</li>
-<li>Could it be that people simply copy reviews to get more: see 1002184-sara/6808758-shirley (revid 35315 and 32345), where sara has much more, could it be all copies .. check out username with many copies!!</li>
-</ul>
-<p>563106-mark-sellers / 672130-emily</p>
+<p>Here the first two have similarity index = 0.91, due to the 'EDITORIAL REVIEW:' added to one of the review.  The second example could well be case of plagiarism with similarity index = 0.7804. (review_id: 13250,9843 and 13773, 13368)</p>
+<h4 id="case-quotation">Case: Quotation</h4>
+<table class="table table-hover table-striped">
+<thead>
+<tr>
+<th>Site</th>
+<th>Username</th>
+<th>Published Date</th>
+<th>Review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Goodreads</td>
+<td>Roddy Williams</td>
+<td>2013-08-25</td>
+<td><em>'The metropolis of New Crobuzon sprawls at the centre of the world. Humans and mutants and arcane races brood in the gloom beneath its chimneys,...'</em></td>
+</tr>
+<tr>
+<td>Goodreads</td>
+<td>Feistytiger</td>
+<td>2012-05-09</td>
+<td><em>The metropolis of New Crobuzon sprawls at the centre of its own bewildering world. Humans and mutants and arcane races throng the gloom beneath its chimneys,,..</em></td>
+</tr>
+</tbody>
+</table>
+<p>Example like these are taken from a back cover of a book (this one was from a China Miéville's book), so most probably coincidental. (review_id: 32895, 25554)</p>
+<h4 id="case-summary-stats">Case Summary stats</h4>
+<p>In summary, it seems the bulk of duplicates originate from people copying their reviews across sites (a large number also due to technical issues) :</p>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
 <th>Case/Site</th>
-<th>Librarything</th>
-<th align="right">Goodreads</th>
-<th align="right">Babelio</th>
+<th># of occurence</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Case 1 (same date, username &amp; site)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>47.3K</td>
 </tr>
 <tr>
 <td>Case 2 (same date &amp; site, diff username)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>2.7K</td>
 </tr>
 <tr>
-<td>Case 3 (same username &amp; date, diff site)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>Case 3 (same username &amp; date, diff date)</td>
+<td>7.9K</td>
 </tr>
 <tr>
-<td>Case 4 (same username &amp; site, diff date)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>Case 4 (same username &amp; site, diff site)</td>
+<td>2.6K</td>
 </tr>
 <tr>
 <td>Case 5 (same username, diff date &amp; site)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>5.2K</td>
 </tr>
 <tr>
 <td>Case 6 (same date, diff username &amp; site)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>47.7K</td>
 </tr>
 <tr>
-<td>Case 7 (same site, diff date &amp; username)</td>
-<td>yK</td>
-<td align="right">xK</td>
-<td align="right">zK</td>
+<td>Case 7 (diff site, date &amp; username)</td>
+<td>164.9K</td>
 </tr>
 </tbody>
-</table>
-<h3 id="international-reviews">International Reviews</h3>
-<p>What about the languages used for reviewing?  Let's look at the distribution graph of languages.</p>
-<p>I used the Python langid module (ref) to detect the language used in review.  To avoid getting unpredictable results it was used for reviews with at least 50 characters.   </p>
-<p>Although Librarything classifies reviews by language, these were not used for consistency with the other site and to avoid some issues where language was not set or wrong.  </p>
+</table><hr><h4>Footnotes</h4><ol class="simple-footnotes"><li id="sf-brd_basicstat-1">I did not contact Amazon to get my spider working (their sites are not robot friendly since many try to get financial advantages from their data), and decided not to harvest their reviews <a href="#sf-brd_basicstat-1-back" class="simple-footnote-back">↩</a></li><li id="sf-brd_basicstat-2">Goodreads has a limit of 100 pages of reviews available on website, so popular book may not have all reviews (max available=3030) <a href="#sf-brd_basicstat-2-back" class="simple-footnote-back">↩</a></li><li id="sf-brd_basicstat-3">Babelio is dedicated to french literature, and books found and reviews harvested may not reflect its popularity (sample is biased toward english and/or international best seller) <a href="#sf-brd_basicstat-3-back" class="simple-footnote-back">↩</a></li></ol>
             </div>
 
             <!-- MO: added for series -->
@@ -644,28 +665,34 @@
                 <li class="list-group-item"><a href="https://twitter.com/datapfranc"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
                 <li class="list-group-item"><a href="http://linkedin.com/in/martinouellet"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
                 <li class="list-group-item"><a href="http://martin-ouellet.blogspot.ch/"><i class="fa fa-personal-blog-square fa-lg"></i> Personal blog</a></li>
+                <li class="list-group-item"><a href="http://datapfranc.github.io/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
               </ul>
             </li>
 
             <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Recent Posts</span></h4>
                 <ul class="list-group" id="recentposts">
                     <li class="list-group-item">
-                        <a href="/misc/brd_why/">
+                        <a href="http://datapfranc.github.io/misc/brd_basicstat/">
+                            BRD summary stats
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_why/">
                             Why Book Review?
                         </a>
                     </li>
                     <li class="list-group-item">
-                        <a href="/misc/BRD_DI_part1/">
+                        <a href="http://datapfranc.github.io/misc/brd_di_part1/">
                             How to do data integration, BRD example
                         </a>
                     </li>
                     <li class="list-group-item">
-                        <a href="/misc/BRD_DI_part2/">
+                        <a href="http://datapfranc.github.io/misc/brd_di_part2/">
                             How to do data integration, BRD example (part2)
                         </a>
                     </li>
                     <li class="list-group-item">
-                        <a href="/misc/BRD_DI_part3/">
+                        <a href="http://datapfranc.github.io/misc/brd_di_part3/">
                             How to do data integration, BRD example (part3)
                         </a>
                     </li>
@@ -673,20 +700,33 @@
             </li>
 
 
-            <li class="list-group-item"><a href="/tags.html"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+            <li class="list-group-item"><a href="http://datapfranc.github.io/tags.html"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
                 <ul class="list-group list-inline tagcloud" id="tags">
                     <li class="list-group-item tag-1">
-                        <a href="/tags/brd.html">
+                        <a href="http://datapfranc.github.io/tags/brd.html">
                             BRD
                         </a>
                     </li>
                     <li class="list-group-item tag-1">
-                        <a href="/tags/data-integration.html">
+                        <a href="http://datapfranc.github.io/tags/data-integration.html">
                             data integration
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://datapfranc.github.io/tags/dataset.html">
+                            dataset
                         </a>
                     </li>
                 </ul>
             </li>
+
+    <li class="list-group-item"><h4><i class="fa fa-twitter fa-lg"></i><span class="icon-label">Latest Tweets</span></h4></li>
+    <div id="twitter_timeline">
+        <a class="twitter-timeline" data-chrome="noheader" href="https://twitter.com/dataPFranc" data-widget-id="738675033866940416">Tweets by dataPFranc</a>
+    </div>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
         <!--     <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
       <ul class="list-group" id="links">
         <li class="list-group-item">
@@ -779,13 +819,13 @@
               <!-- <g:plusone size="standard(bubble)" data-href="http://the-data-show.com"></g:plusone> -->
               <br>
               <h3>Share DataPlatform Franchising</h3>
-                <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="" addthis:title="Check out DataPlatform Franchising!">
+                <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="http://datapfranc.github.io" addthis:title="Check out DataPlatform Franchising!">
                   <a class="addthis_button_facebook"></a>
                   <a class="addthis_button_twitter"></a>
                   <a class="addthis_button_google_plusone_share"></a>
                   <a class="addthis_button_email"></a>
                   <a class="addthis_button_linkedin"></a>
-                  <a class="addthis_button_rss_follow" addthis:userid="/feeds/all.atom.xml"></a>
+                  <a class="addthis_button_rss_follow" addthis:userid="http://datapfranc.github.io/feeds/all.atom.xml"></a>
                   <a class="addthis_button_compact"></a>
                 </div>
                 <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-572cd8ecd555b197"></script>
@@ -813,14 +853,14 @@
    </div>
 </footer>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="/theme/js/bootstrap.min.js"></script>
+<script src="http://datapfranc.github.io/theme/js/bootstrap.min.js"></script>
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-<script src="/theme/js/respond.min.js"></script>
+<script src="http://datapfranc.github.io/theme/js/respond.min.js"></script>
 
 <!-- Fix scrolling issues to internal HREFs that get positioned behind navbar -->
 <!-- http://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header -->
-<script src="/theme/js/href_scroll.js"></script>
+<script src="http://datapfranc.github.io/theme/js/href_scroll.js"></script>
 
     <!-- Google Analytics -->
     <script type="text/javascript">
