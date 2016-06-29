@@ -319,13 +319,13 @@
 </tr>
 </tbody>
 </table>
-<p>Yes all scores are positively correlated but not by much.  It seems reviewers give on average similar rating, but only agree moderately on which books are good or bad.  This is especially true between Babelio and the other sites, where cultural differences seems to be at play.     </p>
+<p>Yes all scores are positively correlated but not by much.  It seems reviewers give on average similar rating, but only agree moderately on which books are good or bad.  This is especially obvious between Babelio and other sites, where cultural differences seem to be at play.     </p>
 <h2 id="duplicated-reviews">Duplicated Reviews</h2>
 <p>Over <strong>581K</strong> reviews were identified as very similar!  These were found using the following simple rules:</p>
 <ul>
 <li>Only comparing reviews from same Work (logical)</li>
 <li>Comparing reviews with text of at least 100 characters long (ignoring similar short reviews)</li>
-<li>Comparing reviews with text of similar size (± +/- 8%)</li>
+<li>Comparing reviews with text of similar size (±8%)</li>
 <li>Flag reviews as duplicates when their <strong>trigram</strong> <a href="http://datapfranc.github.io/misc/brd_di_part3/">similarity index</a> is above 0.7 (although this may seem small, most similar reviews had index larger than 0.9)</li>
 </ul>
 <table class="table table-hover table-striped">
@@ -341,17 +341,21 @@
 <td>581K</td>
 </tr>
 <tr>
-<td>Avg duplicates per Book</td>
+<td>Avg nb of reviews per Book</td>
+<td>110.1</td>
+</tr>
+<tr>
+<td>Avg nb of duplicates per Book</td>
 <td>2.89</td>
 </tr>
 <tr>
-<td>Ratio (avg duplicates/avg nb of reviews) per book</td>
+<td>Ratio avg duplicates/avg reviews</td>
 <td>2.6%</td>
 </tr>
 </tbody>
 </table>
-<p><sup>* </sup>here 2 reviews identical count for 2 duplicates</p>
-<p>These numbers are intriguing and encouraged further investigation.  So let's drill-down the analysis a bit further...</p>
+<p><sup>* </sup> When 2 reviews are considered similar, nb of duplicates count is 2.</p>
+<p>These numbers are important and encourage further investigation.  So let's drill-down the analysis a bit further...</p>
 <h4 id="are-these-duplicates-within-or-across-sites">Are these duplicates within or across sites?</h4>
 <table class="table table-hover table-striped">
 <thead>
@@ -383,8 +387,8 @@
 </tr>
 </tbody>
 </table>
-<p>(Number here are lower as identical 2 reviews are counted as only one duplicate).</p>
-<p>It seems like a large proportion are originating from users copying their reviews between Librarything and Goodreads.  </p>
+<p>(Note: 2 reviews considered similar are counted as only one duplicate here).</p>
+<p>It seems like a large proportion are originating from users copying their reviews between Librarything and Goodreads.</p>
 <p>Let's look at some examples to distinguish various cases:</p>
 <h4 id="case-identical-duplicates">Case: Identical duplicates</h4>
 <table class="table table-hover table-striped">
