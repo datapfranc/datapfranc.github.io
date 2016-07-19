@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en"
+>
+<head>
+    <title>data integration - DataPlatform Franchising</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="http://datapfranc.github.io/images/favicon.png" rel="icon">
+
+
+    <meta name="author" content="Martin Ouellet" />
+    <meta name="keywords" content="data integration" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="DataPlatform Franchising" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="DataPlatform Franchising"/>
+        <meta property="og:url" content="http://datapfranc.github.io"/>
+        <meta property="og:description" content="DataPlatform Franchising"/>
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
+    <link href="http://datapfranc.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://datapfranc.github.io/theme/css/pygments/monokai.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/style.css" type="text/css"/>
+        <link href="http://datapfranc.github.io/static/custom.css" rel="stylesheet">
+
+        <link href="http://datapfranc.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="DataPlatform Franchising ATOM Feed"/>
+
+</head>
+<body>
+<!-- <script src="http://datapfranc.github.io/theme/js/jquery.min.js"></script> -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://datapfranc.github.io/" class="navbar-brand">
+<img src="http://datapfranc.github.io/images/logo.png" width="36"/> DataPlatform Franchising            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://datapfranc.github.io/about.html">
+                             About
+                          </a></li>
+                         <li><a href="http://datapfranc.github.io/context.html">
+                             Context
+                          </a></li>
+                         <li><a href="http://datapfranc.github.io/brd_intro.html">
+                             BRD
+                          </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://datapfranc.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+            <article>
+                <h2><a href="http://datapfranc.github.io/misc/brd_di_part3/">How to do data integration, BRD example (part3)</a></h2>
+                    <div class="well well-sm">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-06-02T09:07:00+02:00"> Thu 02 June 2016</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://datapfranc.github.io/tags/brd.html">BRD</a>
+        /
+	<a href="http://datapfranc.github.io/tags/data-integration.html">data integration</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                <div class="summary"><h2 id="business-layer">Business Layer</h2>
+<p>This layer contains derived data needed by Presentation/Delivery layer. We can build components like associations, groupings or hierarchies defined by Business Rules, and also do data cleansing to fix issues found in our <em>raw data</em>.  </p>
+<h3 id="building-new-association-similar-reviews">Building new association: Similar Reviews</h3>
+<p>Let's say we're required to find similar reviews written on Work. This could be useful for:</p>
+<ul>
+<li>Identify duplication issues</li>
+<li>Identify users duplicating reviews within or across sites</li>
+<li>Identify spam where reviews are written to bias opinion</li>
+<li>Find plagiarism among reviewers</li>
+</ul>
+<p>How do we do that?  Data processing on unstructured text is efficiently done using NoSQL ...</p>
+                    <a class="btn btn-default btn-xs" href="http://datapfranc.github.io/misc/brd_di_part3/">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="http://datapfranc.github.io/misc/brd_di_part2/">How to do data integration, BRD example (part2)</a></h2>
+                    <div class="well well-sm">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-05-21T11:15:00+02:00"> Sat 21 May 2016</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://datapfranc.github.io/tags/brd.html">BRD</a>
+        /
+	<a href="http://datapfranc.github.io/tags/data-integration.html">data integration</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                <div class="summary"><h2 id="physical-data-model">Physical Data model</h2>
+<p>This post presents the physical data model. Compare to <a href="http://datapfranc.github.io/misc/brd_di_part1/">logical model</a>, it contains a lot more tables. Relational databases are less flexible than schema-less NoSQL environments and highly normalized model is one technique used to mitigate rigidity through extension. We accommodate changes by adding new structures as we discover new attributes and relationship relevant to our evolving needs. Interested reader can check methods like <a href="https://en.wikipedia.org/wiki/Data_Vault_Modeling">Data Vault</a> or <a href="http://www.anchormodeling.com/?page_id=2">Anchor Modeling</a>.</p>
+<p>To explain some details of physical data model, we'll look at the code.  Although SQL is not well suited for self-documented code, most DB engines support explicit ...</p>
+                    <a class="btn btn-default btn-xs" href="http://datapfranc.github.io/misc/brd_di_part2/">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="http://datapfranc.github.io/misc/brd_di_part1/">How to do data integration, BRD example</a></h2>
+                    <div class="well well-sm">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-04-01T11:15:00+02:00"> Fri 01 April 2016</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://datapfranc.github.io/tags/brd.html">BRD</a>
+        /
+	<a href="http://datapfranc.github.io/tags/data-integration.html">data integration</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                <div class="summary"><h3 id="data-integration-one-of-the-main-bi-functions">Data Integration: one of the main BI functions</h3>
+<p>BI environment architecture is often left as an after-thought. Business is pressuring technical teams for delivery, so they quickly jump into designing star schema or dimensional models (the <strong>Presentation Layer</strong>), and neglect the <strong>Integration Layer</strong>.  End result: no separation of concerns will exist between the integration AND presentation aspects.</p>
+<p>Integration and Presentation are critical functions that must be decoupled into separate layers (at least logically) reflecting their independent goals and specifications. Integration is concerned with capturing raw and untransformed data originating from sources, while Presentation applies transformation and business rules to derive ...</p>
+                    <a class="btn btn-default btn-xs" href="http://datapfranc.github.io/misc/brd_di_part1/">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://github.com/mart2010"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+                <li class="list-group-item"><a href="https://twitter.com/datapfranc"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
+                <li class="list-group-item"><a href="http://linkedin.com/in/martinouellet"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="http://martin-ouellet.blogspot.ch/"><i class="fa fa-personal-blog-square fa-lg"></i> Personal blog</a></li>
+                <li class="list-group-item"><a href="http://datapfranc.github.io/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+              </ul>
+            </li>
+
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Recent Posts</span></h4>
+                <ul class="list-group" id="recentposts">
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_di_part3/">
+                            How to do data integration, BRD example (part3)
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_di_part2/">
+                            How to do data integration, BRD example (part2)
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_di_part1/">
+                            How to do data integration, BRD example
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+            <li class="list-group-item"><a href="http://datapfranc.github.io/tags.html"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group list-inline tagcloud" id="tags">
+                    <li class="list-group-item tag-1">
+                        <a href="http://datapfranc.github.io/tags/brd.html">
+                            BRD
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="http://datapfranc.github.io/tags/data-integration.html">
+                            data integration
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://datapfranc.github.io/tags/dataset.html">
+                            dataset
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+    <li class="list-group-item"><h4><i class="fa fa-twitter fa-lg"></i><span class="icon-label">Latest Tweets</span></h4></li>
+    <div id="twitter_timeline">
+        <a class="twitter-timeline" data-chrome="noheader" href="https://twitter.com/dataPFranc" data-widget-id="738675033866940416">Tweets by dataPFranc</a>
+    </div>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+        <!--     <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://www.dbms2.com/" target="_blank">
+                DBMS2
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://librarything.com/" target="_blank">
+                Librarything
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://www.goodreads.com/" target="_blank">
+                Goodreads
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://babelio.com/" target="_blank">
+                Babelio
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://cloudofdata.com/blog/" target="_blank">
+                Paul Miller blog
+            </a>
+        </li>
+      </ul>
+    </li>
+ -->
+    </ul>
+</section>            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="well well-lg" id="footer-well">
+      <div class="container">
+      <div class="row">
+          <!-- MO done to not show comment
+           <div class="col-sm-4">
+               <div id="RecentComments" class="dsq-widget">
+                <h3 style="margin-bottom:0.5px;">Recent Comments</h3>
+                <script type="text/javascript" src="http://.disqus.com/recent_comments_widget.js?num_items=5&hide_mods=0&hide_avatars=0&avatar_size=32&excerpt_length=100"></script>
+               </div>
+          -->
+           </div>
+           <div class="col-sm-4">
+               <h3 style="margin-bottom:0.5px;">Websites I Like</h3>
+               </br>
+               <ul style="list-style-type:circle">
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://www.dbms2.com/" target="_blank">
+                        DBMS2
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://librarything.com/" target="_blank">
+                        Librarything
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="https://www.goodreads.com/" target="_blank">
+                        Goodreads
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="https://babelio.com/" target="_blank">
+                        Babelio
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://cloudofdata.com/blog/" target="_blank">
+                        Paul Miller blog
+                    </a>
+                  </li>
+                <div>
+              </ul>
+
+             <!-- // <script src="https://apis.google.com/js/platform.js" async defer></script> -->
+              <!-- <g:plusone size="standard(bubble)" data-href="http://the-data-show.com"></g:plusone> -->
+              <br>
+              <h3>Share DataPlatform Franchising</h3>
+                <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="http://datapfranc.github.io" addthis:title="Check out DataPlatform Franchising!">
+                  <a class="addthis_button_facebook"></a>
+                  <a class="addthis_button_twitter"></a>
+                  <a class="addthis_button_google_plusone_share"></a>
+                  <a class="addthis_button_email"></a>
+                  <a class="addthis_button_linkedin"></a>
+                  <a class="addthis_button_rss_follow" addthis:userid="http://datapfranc.github.io/feeds/all.atom.xml"></a>
+                  <a class="addthis_button_compact"></a>
+                </div>
+                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-572cd8ecd555b197"></script>
+           </div>
+           <div class="col-sm-4">
+<div id="aboutme" align="center">
+	<h3 style="margin-bottom:0.5px;">About Martin Ouellet</h3><br/>
+        <p>
+            <img width="60%" class="img-thumbnail" src="/images/headshot_2.jpg"/>
+        </p>
+    <p> 
+        I'm a data architect by choice. I enjoy doing backend stuff and data-oriented projects.<p>Find out more about me at <strong><a href="http://martin-ouellet.blogspot.ch" title="Personal Archive">martin-ouellet</a></strong></p><p>You can also contact me <a href='mailto:mart2010.l@gmail.com?subject=dataPFranc-feedback'>here</a>
+    </p>
+</div>
+           </div>
+      </div>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Martin Ouellet
+            &middot; Powered by <a href="http://python.org/" target="_blank">Python</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            adapted from <a href="http://beneathdata.com" target="_blank">beneathdata</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+   </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://datapfranc.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://datapfranc.github.io/theme/js/respond.min.js"></script>
+
+<!-- Fix scrolling issues to internal HREFs that get positioned behind navbar -->
+<!-- http://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header -->
+<script src="http://datapfranc.github.io/theme/js/href_scroll.js"></script>
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-49087367-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>
