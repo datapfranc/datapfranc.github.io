@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en"
+>
+<head>
+    <title>Loading into Redshift - DataPlatform Franchising</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link href="http://datapfranc.github.io/images/favicon.png" rel="icon">
+
+<link rel="canonical" href="http://datapfranc.github.io/drafts/brd_loading_rs.html">
+
+        <meta name="author" content="Martin Ouellet" />
+        <meta name="keywords" content="dataset,redshift" />
+        <meta name="description" content="This post will go through the steps needed to set-up a new Redshift cluster and get data into it. We&#39;ll be using a standard approach but there are many alternatives, see here for more details. For the sake of simplicity, we assume a number of ETL jobs already exist to generate the presentation-layer data as flat files. In real life, these ETL jobs would hold and maintain our set of Business rules and transformation logic required by our project, but for now we only focus on loading mechanisms involved with Redshift. Setting up an Amazon Redshift Cluster The pre-requisite ..." />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
+    <link href="http://datapfranc.github.io/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://datapfranc.github.io/theme/css/pygments/monokai.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://datapfranc.github.io/theme/css/style.css" type="text/css"/>
+        <link href="http://datapfranc.github.io/static/custom.css" rel="stylesheet">
+
+        <link href="http://datapfranc.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="DataPlatform Franchising ATOM Feed"/>
+
+</head>
+<body>
+<!-- <script src="http://datapfranc.github.io/theme/js/jquery.min.js"></script> -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://datapfranc.github.io/" class="navbar-brand">
+<img src="http://datapfranc.github.io/images/logo.png" width="36"/> DataPlatform Franchising            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="http://datapfranc.github.io/about.html">
+                             About
+                          </a></li>
+                         <li><a href="http://datapfranc.github.io/context.html">
+                             Context
+                          </a></li>
+                         <li><a href="http://datapfranc.github.io/brd_intro.html">
+                             BRD
+                          </a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://datapfranc.github.io/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <div class="well well-sm">
+              <!-- <div class="panel-heading"> -->
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-06-22T13:35:00+02:00"> Wed 22 June 2016</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://datapfranc.github.io/tags/dataset.html">dataset</a>
+        /
+	<a href="http://datapfranc.github.io/tags/redshift.html">redshift</a>
+    
+</footer><!-- /.post-info -->              <!-- </div> -->
+            </div>
+            <h1 class="entry-title">
+                <a href="http://datapfranc.github.io/drafts/brd_loading_rs.html"
+                rel="bookmark"
+                title="Permalink to Loading into Redshift">
+                    Loading into Redshift
+                </a>
+            </h1>
+
+            <div class="entry-content">
+                <p>This post will go through the steps needed to set-up a new Redshift cluster and get data into it.  We'll be using a standard approach but there are many  alternatives, see <a href="http://thelink">here</a> for more details.  For the sake of simplicity, we assume a number of ETL jobs already exist to generate the presentation-layer data as flat files.  In real life, these ETL jobs would hold and maintain our set of Business rules and transformation logic required by our project, but for now we only focus on loading mechanisms involved with Redshift.</p>
+<h3 id="setting-up-an-amazon-redshift-cluster">Setting up an Amazon Redshift Cluster</h3>
+<p>The pre-requisite for setting-up the Cluster are:
+  1. <a href="http://aws.amazon.com/"><strong>AWS account</strong></a> with a valid phone number
+  2. <a href="http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html"><strong>IAM role</strong></a> for granting access from one AWS resource to another one (in our case Redshift cluster connecting to our S3 bucket needed by the <code>COPY</code> command)
+  3. SQL client (any JDBC/ODBC compatible client)
+  4. <a href="http://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html#download-jdbc-driver">Redshift JDBC driver</a>, note the jdbc URL format for Redshift cluster: <code>jdbc:redshift://endpoint:port/databasename</code></p>
+<p>Once we have our pre-requisite cleared, we can spawn a new Cluster using the Amazon Redshift <a href="https://console.aws.amazon.com/redshift">console</a> and follow basic instructions.  Important parameters to set are:</p>
+<ul>
+<li>Cluster identifier (unique key to identify our cluster)</li>
+<li>Physical location or region where our cluster will live</li>
+<li>Database name and port (default port is 5439)</li>
+<li>Master username and password ("superuser" of our database having same privileges as database owners but for all databases)</li>
+<li><a href="http://docs.aws.amazon.com/redshift/latest/mgmt/working-with-clusters.html">Node type</a>:<ul>
+<li>Dense storage suited for large data workloads based on HDD storage: <strong>DS1</strong> &amp; <strong>DS2</strong> (both have same storage but DS2 has more RAM/CPU) with different sizes (xlarge and 8xlarge)</li>
+<li>Dense compute suited for performance intensive workloads based on SDD storage: <strong>DC1</strong> with different size (large and 8xlarge)</li>
+</ul>
+</li>
+<li>Cluster type (single or multiple nodes)</li>
+<li>Some other advanced parameters like type of Platform (EC2-Classic and EC2-VPC), Encryption, CloudWatch alarm, ...(more info here).</li>
+<li><strong>IAM role</strong> associated with the cluster<ul>
+<li>Here we set the role explained in pre-requisite that lets Redshift accessing S3 in read-only</li>
+</ul>
+</li>
+</ul>
+<p>I do not provide more details configuration info, but overall the AWS and Redshift web UI is very clear and user friendly and things are easily configured straight from the web app!  It takes 1 or 2 minutes to create and laucnh your Cluster... pretty cool stuff!!  </p>
+<p>Finally before being able to connect to the cluster, we need to configure authorization by defining a <a href="http://docs.aws.amazon.com/redshift/latest/gsg/rs-gsg-authorize-cluster-access.html">security group</a>. Different parameters like protocol, port range and connecting IP inbound rules need to be set and vary slightly depending on the type of platform created earlier (either a classic or a VPC).</p>
+<p>At this stage, we can finally connect to the Cluster using various client like the terminal-based <a href="http://www.postgresql.org/docs/8.4/static/app-psql.html">psql</a> or any GUI like SQuirreL SQL or Workbench/J.  The connection details to provide are the host (the endpoint defined previously), the userid (our master username), the port and the database name we decided to use.  </p>
+<p>1 NODE dc1.large  or 4 Nodes (all nodes have same spec) :
+Current Node Type :     dc1.large
+CPU :       7 EC2 Compute Units (2 virtual cores) per node
+Memory per node :   15 GiB per node
+Storage Disk  :     160GB SSD storage per node
+I/O performance : Moderate
+Platform Processor architecture :   64-bit</p>
+<h3 id="loading-into-redshift">Loading into Redshift</h3>
+<p>Assuming we have our physical data model created in the database (DDL commands executed) we can start loading data into Redshift (link to previous post).</p>
+<p>The recommended approach for loading flat files is to first dump the files into a [S3 bucket] (http://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html), i.e. an URI named resource that stores files onto Amazon Cloud storage service.  We could use the same AWS account created to launch our Amazon Redshift cluster (credentials: an access key ID
+and secret access key).</p>
+<h4 id="splitting-input-files">Splitting input files</h4>
+<p>COPY command can take advantage of MPP to parallelize the loading of large files. This requires to split input files as a multiple of number of slices present in our cluster.  For example, this command would split 'review.txt' files into chunk of 500MB with prefix 'review_part_' :</p>
+<div class="highlight"><pre><span></span>split -b 100m review.txt review_part_
+</pre></div>
+<h4 id="copy-command">COPY command</h4>
+<p>The generic <a href="http://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html"><code>LOAD</code></a> command supports various input type (S3 bucket, DynamoDB table, local files, remote files accessed though SSH...) and offers a array of parameters to tune and customize the load.  </p>
+<p>For instance, for loading DIM_DATE:</p>
+<div class="highlight"><pre><span></span><span class="k">copy</span> <span class="n">dim_date</span> <span class="k">from</span> <span class="s1">'s3://&lt;name-of-bucket&gt;/&lt;path-to-file&gt;'</span>
+<span class="n">credentials</span> <span class="s1">'aws_iam_role=&lt;iam-role-identifier&gt;'</span>
+<span class="k">delimiters</span> <span class="s1">'|'</span> <span class="n">region</span> <span class="s1">'eu-central-1a'</span><span class="p">;</span>
+
+<span class="c1">--Check loading errors at:</span>
+<span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">stl_load_errors</span>
+</pre></div>
+<p>In case of failure, we can check and debug the errors logged at <code>STL_LOAD_ERRORS</code>.  Also, because we used the <code>COPY</code> command Redshift determined automatically the compression encoding most suited to each attributes.  </p>
+<h4 id="review-table-settings">Review table settings</h4>
+<p>Once all data was loaded, we can review and check all settings and table physical statistics with this query:</p>
+<div class="highlight"><pre><span></span><span class="k">select</span> <span class="k">schema</span> <span class="n">schemaname</span>
+        <span class="p">,</span> <span class="ss">"table"</span> <span class="n">tablename</span>
+        <span class="p">,</span> <span class="n">table_id</span> <span class="n">tableid</span>
+        <span class="p">,</span> <span class="k">size</span> <span class="n">size_in_mb</span>
+        <span class="p">,</span> <span class="k">case</span> <span class="k">when</span> <span class="n">diststyle</span> <span class="k">not</span> <span class="k">in</span> <span class="p">(</span><span class="s1">'EVEN'</span><span class="p">,</span><span class="s1">'ALL'</span><span class="p">)</span> <span class="k">then</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">end</span> <span class="n">has_dist_key</span>
+        <span class="p">,</span> <span class="k">case</span> <span class="k">when</span> <span class="n">sortkey1</span> <span class="k">is</span> <span class="k">not</span> <span class="k">null</span> <span class="k">then</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">end</span> <span class="n">has_sort_key</span>
+        <span class="p">,</span> <span class="k">case</span> <span class="k">when</span> <span class="n">encoded</span> <span class="o">=</span> <span class="s1">'Y'</span> <span class="k">then</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">end</span> <span class="n">has_col_encoding</span>
+        <span class="p">,</span> <span class="k">cast</span><span class="p">(</span><span class="n">max_blocks_per_slice</span> <span class="o">-</span> <span class="n">min_blocks_per_slice</span> <span class="k">as</span> <span class="nb">FLOAT</span><span class="p">)</span> <span class="o">/</span> <span class="n">greatest</span><span class="p">(</span><span class="n">nvl</span><span class="p">(</span><span class="n">min_blocks_per_slice</span><span class="p">,</span><span class="mi">0</span><span class="p">)::</span><span class="nb">int</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="n">ratio_skew_across_slices</span>
+        <span class="p">,</span> <span class="k">cast</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">dist_slice</span> <span class="k">as</span> <span class="nb">FLOAT</span><span class="p">)</span> <span class="o">/</span><span class="p">(</span><span class="k">select</span> <span class="k">count</span><span class="p">(</span><span class="k">distinct</span> <span class="n">slice</span><span class="p">)</span> <span class="k">from</span> <span class="n">stv_slices</span><span class="p">)</span> <span class="n">pct_slices_populated</span>
+<span class="k">from</span> <span class="n">svv_table_info</span> <span class="n">ti</span>
+  <span class="k">join</span>
+<span class="p">(</span><span class="k">select</span> <span class="n">tbl</span>
+        <span class="p">,</span> <span class="k">min</span><span class="p">(</span><span class="k">c</span><span class="p">)</span> <span class="k">as</span> <span class="n">min_blocks_per_slice</span>
+        <span class="p">,</span> <span class="k">max</span><span class="p">(</span><span class="k">c</span><span class="p">)</span> <span class="k">as</span> <span class="n">max_blocks_per_slice</span>
+        <span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="k">distinct</span> <span class="n">slice</span><span class="p">)</span> <span class="n">dist_slice</span>
+<span class="k">from</span> <span class="p">(</span><span class="k">select</span> <span class="n">b</span><span class="p">.</span><span class="n">tbl</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">slice</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">as</span> <span class="k">c</span> <span class="k">from</span> <span class="n">stv_blocklist</span> <span class="n">b</span> <span class="k">group</span> <span class="k">by</span> <span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">where</span> <span class="n">tbl</span> <span class="k">in</span> <span class="p">(</span><span class="k">select</span> <span class="n">table_id</span> <span class="k">from</span> <span class="n">svv_table_info</span><span class="p">)</span>
+<span class="k">group</span> <span class="k">by</span> <span class="n">tbl</span><span class="p">)</span> <span class="n">iq</span> <span class="k">on</span> <span class="n">iq</span><span class="p">.</span><span class="n">tbl</span> <span class="o">=</span> <span class="n">ti</span><span class="p">.</span><span class="n">table_id</span><span class="p">;</span>
+</pre></div>
+<p>We can also check the compression encoding chosen by Redshift for each column of a particular table:</p>
+<div class="highlight"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">pg_table_def</span> <span class="k">where</span> <span class="n">tablename</span> <span class="o">=</span> <span class="s1">'review'</span><span class="p">;</span>
+</pre></div>
+<h3 id="running-queries">Running queries</h3>
+<p>At this point, let's run a few queries.</p>
+<p>Remind that no sort key are yet defined for any tables in our sub-optimal physical design.  To optimize this, we could also add sort-key but for now it is more interesting to see the impact on adding cluster nodes ...</p>
+<p>After re-running the Query a multiple times, we can easily check the impact of our optimization by viewing the queries auditing info on logged by Redshift:</p>
+<div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">starttime</span><span class="p">,</span> <span class="n">querytxt</span><span class="p">,</span> <span class="n">datediff</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">)</span> <span class="k">as</span> <span class="n">elapse_sec</span>
+<span class="k">from</span> <span class="n">stl_query</span>
+<span class="k">where</span> <span class="n">starttime</span> <span class="o">&gt;=</span> <span class="s1">'2016-08-17 10:00'</span> <span class="k">and</span> <span class="n">endtime</span> <span class="o">&lt;</span> <span class="s1">'2016-08-17 23:59'</span>
+<span class="k">and</span> <span class="k">database</span> <span class="o">=</span> <span class="s1">'brd'</span>
+<span class="k">order</span> <span class="k">by</span> <span class="n">starttime</span>
+<span class="p">;</span>
+</pre></div>
+<p>Next, we'll try the MPP capability by configuring our Cluster with 4 nodes instead of 1 as currently set.</p>
+<p>Result of different Query response time for different set-up.  Response time are calculated by averaging same queries executed non- sequentially for 5 times</p>
+<table class="table table-hover table-striped">
+<thead>
+<tr>
+<th>Query</th>
+<th><strong>1 Node dc1.large</strong></th>
+<th><strong>4 Nodes dc1.large</strong> cluster</th>
+<th><strong>Baseline commodity server (iMAC ...)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trend rating</td>
+<td>1916</td>
+<td>498</td>
+<td></td>
+</tr>
+<tr>
+<td>Cultural difference</td>
+<td>3043</td>
+<td>433</td>
+<td></td>
+</tr>
+<tr>
+<td>Reader info</td>
+<td>9255</td>
+<td>2779</td>
+<td></td>
+</tr>
+<tr>
+<td>Helpful difference rating</td>
+<td>1649</td>
+<td>508</td>
+<td></td>
+</tr>
+<tr>
+<td>Stats per site</td>
+<td>2354</td>
+<td>553</td>
+<td></td>
+</tr>
+<tr>
+<td>Best Author</td>
+<td>5798</td>
+<td>1386</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Note: Response time are in milliseconds.</p>
+<p>Note2:  I actually kill/spawn/re-load a new Cluster with 4 nodes to do this perf comparison.  I realized after, that I could have simply resize my 1 Node cluster directly through the drop-down menu Cluster/Resize ... and let Redshift does this automatically (what a time savor)...</p>
+<p>The only constraint of doing this way: "Warning: Resizing the cluster will cause it to be restarted into read-only mode for the duration of the resize operation. All currently executing queries and database connections on the cluster will be terminated when the resize operation begins and again when it is complete"</p>
+<p>For those curious, here's some of the results of these interesting queries:</p>
+            </div>
+
+            <!-- MO: added for series -->
+
+            <!-- /.entry-content -->
+    <hr />
+    <!-- AddThis Button BEGIN -->
+    <!--<div class="addthis_toolbox addthis_default_style">
+            <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+            <a class="addthis_button_tweet"></a>
+            <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    </div>-->
+
+
+
+   <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <!-- <div class="addthis_sharing_toolbox"></div> -->
+    <div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+        <a class="addthis_counter_facebook"></a>
+        <a class="addthis_counter_twitter"></a>
+        <a class="addthis_button_google_plusone_share"></a>
+        <a class="addthis_button_email"></a>
+        <a class="addthis_button_linkedin"></a>
+        <a class="addthis_button_compact"></a>
+        <a class="addthis_counter addthis_bubble_style"></a>
+    </div>
+
+
+    <!-- AddThis Button END -->
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+
+
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="http://github.com/mart2010"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+                <li class="list-group-item"><a href="https://twitter.com/datapfranc"><i class="fa fa-twitter-square fa-lg"></i> twitter</a></li>
+                <li class="list-group-item"><a href="http://linkedin.com/in/martinouellet"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+                <li class="list-group-item"><a href="http://martin-ouellet.blogspot.ch/"><i class="fa fa-personal-blog-square fa-lg"></i> Personal blog</a></li>
+                <li class="list-group-item"><a href="http://datapfranc.github.io/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> rss</a></li>
+              </ul>
+            </li>
+
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Recent Posts</span></h4>
+                <ul class="list-group" id="recentposts">
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_pl_intro/">
+                            BRD Presentation layer
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_basicstat/">
+                            BRD summary stats
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_why/">
+                            Why Book Review?
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_di_part1/">
+                            How to do data integration, BRD example
+                        </a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_di_part2/">
+                            How to do data integration, BRD example (part2)
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+            <li class="list-group-item"><a href="http://datapfranc.github.io/tags.html"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                <ul class="list-group list-inline tagcloud" id="tags">
+                    <li class="list-group-item tag-1">
+                        <a href="http://datapfranc.github.io/tags/brd.html">
+                            BRD
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-1">
+                        <a href="http://datapfranc.github.io/tags/data-integration.html">
+                            data integration
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-2">
+                        <a href="http://datapfranc.github.io/tags/dataset.html">
+                            dataset
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+    <li class="list-group-item"><h4><i class="fa fa-twitter fa-lg"></i><span class="icon-label">Latest Tweets</span></h4></li>
+    <div id="twitter_timeline">
+        <a class="twitter-timeline" data-chrome="noheader" href="https://twitter.com/dataPFranc" data-widget-id="738675033866940416">Tweets by dataPFranc</a>
+    </div>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+        <!--     <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://www.dbms2.com/" target="_blank">
+                DBMS2
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://librarything.com/" target="_blank">
+                Librarything
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://www.goodreads.com/" target="_blank">
+                Goodreads
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="https://babelio.com/" target="_blank">
+                Babelio
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://cloudofdata.com/blog/" target="_blank">
+                Paul Miller blog
+            </a>
+        </li>
+      </ul>
+    </li>
+ -->
+    </ul>
+</section>            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="well well-lg" id="footer-well">
+      <div class="container">
+      <div class="row">
+          <!-- MO done to not show comment
+           <div class="col-sm-4">
+               <div id="RecentComments" class="dsq-widget">
+                <h3 style="margin-bottom:0.5px;">Recent Comments</h3>
+                <script type="text/javascript" src="http://.disqus.com/recent_comments_widget.js?num_items=5&hide_mods=0&hide_avatars=0&avatar_size=32&excerpt_length=100"></script>
+               </div>
+          -->
+           </div>
+           <div class="col-sm-4">
+               <h3 style="margin-bottom:0.5px;">Websites I Like</h3>
+               </br>
+               <ul style="list-style-type:circle">
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://www.dbms2.com/" target="_blank">
+                        DBMS2
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://librarything.com/" target="_blank">
+                        Librarything
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="https://www.goodreads.com/" target="_blank">
+                        Goodreads
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="https://babelio.com/" target="_blank">
+                        Babelio
+                    </a>
+                  </li>
+                <div>
+                <div style="margin-bottom: 10.5px; margin-top: 10.5px; font-size: 19px;">
+                  <li>
+                    <a href="http://cloudofdata.com/blog/" target="_blank">
+                        Paul Miller blog
+                    </a>
+                  </li>
+                <div>
+              </ul>
+
+             <!-- // <script src="https://apis.google.com/js/platform.js" async defer></script> -->
+              <!-- <g:plusone size="standard(bubble)" data-href="http://the-data-show.com"></g:plusone> -->
+              <br>
+              <h3>Share DataPlatform Franchising</h3>
+                <div class="addthis_toolbox addthis_default_style addthis_32x32_style" addthis:url="http://datapfranc.github.io" addthis:title="Check out DataPlatform Franchising!">
+                  <a class="addthis_button_facebook"></a>
+                  <a class="addthis_button_twitter"></a>
+                  <a class="addthis_button_google_plusone_share"></a>
+                  <a class="addthis_button_email"></a>
+                  <a class="addthis_button_linkedin"></a>
+                  <a class="addthis_button_rss_follow" addthis:userid="http://datapfranc.github.io/feeds/all.atom.xml"></a>
+                  <a class="addthis_button_compact"></a>
+                </div>
+                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-572cd8ecd555b197"></script>
+           </div>
+           <div class="col-sm-4">
+<div id="aboutme" align="center">
+	<h3 style="margin-bottom:0.5px;">About Martin Ouellet</h3><br/>
+        <p>
+            <img width="60%" class="img-thumbnail" src="/images/headshot_2.jpg"/>
+        </p>
+    <p> 
+        I'm a data architect by choice. I enjoy doing backend stuff and data-oriented projects.<p>Find out more about me at <strong><a href="http://martin-ouellet.blogspot.ch" title="Personal Archive">martin-ouellet</a></strong></p><p>You can also contact me <a href='mailto:mart2010.l@gmail.com?subject=dataPFranc-feedback'>here</a>
+    </p>
+</div>
+           </div>
+      </div>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Martin Ouellet
+            &middot; Powered by <a href="http://python.org/" target="_blank">Python</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            adapted from <a href="http://beneathdata.com" target="_blank">beneathdata</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+   </div>
+</footer>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://datapfranc.github.io/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://datapfranc.github.io/theme/js/respond.min.js"></script>
+
+<!-- Fix scrolling issues to internal HREFs that get positioned behind navbar -->
+<!-- http://stackoverflow.com/questions/10732690/offsetting-an-html-anchor-to-adjust-for-fixed-header -->
+<script src="http://datapfranc.github.io/theme/js/href_scroll.js"></script>
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-49087367-2']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>
