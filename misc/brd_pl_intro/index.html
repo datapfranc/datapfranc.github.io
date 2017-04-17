@@ -103,9 +103,9 @@
 <p>Redshift is a Massively parallel processing (MPP) Cloud-based database suited for BI and analytics needs running on top of commodity hardware based architectures available from AWS.  Among its features, we can highlight Columnar storage, high compression data, execution of query compiled code.  More info available <a href="http://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html">here</a> and I've also gathered details on a separate <a href="http://martin-ouellet.blogspot.co.at/2016/07/redshift-cloud-based-data-warehousing.html">post</a> covering key aspects influencing data modeling.</p>
 <h3 id="physical-data-model">Physical Data model</h3>
 <p>BRD integration layer is highly normalized and this can penalize Redshift data access performance.  So we should first de-normalize our model by merging descriptive tables (ex. user_*) and association ones (ex. review_similarto, work_title, ..) into their parent entity.</p>
-<p>From the diagram below, we can see that the physical model is much simpler than the integration layer's model. That's typical of presentation layer that should also be easily interpreted and understood by a larger audience.</p>
-<p><img alt="Physical Data model" class="img-responsive" src="/images/blog/BRD_pdm_integration.png" width="100%"/></p>
-<p>We have one central fact table <code>REVIEW</code> storing facts <code>rating</code> and <code>nb_likes</code> (and raw review text) for each review, surrounded by dimensions <code>DIM_DATE</code>, <code>DIM_REVIEWER</code>, <code>DIM_BOOK</code> and <code>DIM_SITE</code>. We also have tables <code>REL_TAG</code> and <code>REL_AUTHOR</code> capturing the more complex many-to-many relationship between a review and dimensions <code>DIM_TAG</code> and <code>DIM_AUTHOR</code> respectively.</p>
+<p>Looking at the physical data model of the integration layer's model (see below), we see it is a bit complex and not suited to any end-user.
+<img alt="Physical Data model" class="img-responsive" src="/images/blog/BRD_pdm_integration.png" width="100%"/></p>
+<p>However Presentation layer should be easily interpreted and understood by a much larger audience, hence simpler.  We have one central fact table <code>REVIEW</code> storing facts <code>rating</code> and <code>nb_likes</code> (and raw review text) for each review, surrounded by dimensions <code>DIM_DATE</code>, <code>DIM_REVIEWER</code>, <code>DIM_BOOK</code> and <code>DIM_SITE</code>. We also have tables <code>REL_TAG</code> and <code>REL_AUTHOR</code> capturing the more complex many-to-many relationship between a review and dimensions <code>DIM_TAG</code> and <code>DIM_AUTHOR</code> respectively.</p>
 <p>Other changes required are due to Redshift support limitation of <a href="http://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html">data type</a> compared to Potgres. The <code>TEXT</code> type are converted to <code>VARCHAR</code> using data input to determine its size.  Size is based on bytes and not character, hence to determine size required use SQL function <code>octet_length()</code> instead of <code>char_length()</code>. Also, <code>UUID</code> are replaced by <code>BIGINT</code> (note that UUID are useful for data integration where load can be parallelized without dependency on surrogate keys lookup, but not so useful for our Presentation layer).</p>
 <p>For each table, we can also set <strong>Distribution type</strong> using assumptions on most frequent query joins, <strong>Sort key</strong>, as well as <strong>Compression encoding</strong> for all attributes.</p>
 <p>The rest of this post discusses implementation details of some table.</p>
@@ -315,6 +315,11 @@
             <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Recent Posts</span></h4>
                 <ul class="list-group" id="recentposts">
                     <li class="list-group-item">
+                        <a href="http://datapfranc.github.io/misc/brd_loading_rs/">
+                            Loading into Redshift
+                        </a>
+                    </li>
+                    <li class="list-group-item">
                         <a href="http://datapfranc.github.io/misc/brd_pl_intro/">
                             BRD Presentation layer
                         </a>
@@ -334,11 +339,6 @@
                             How to do data integration, BRD example
                         </a>
                     </li>
-                    <li class="list-group-item">
-                        <a href="http://datapfranc.github.io/misc/brd_di_part2/">
-                            How to do data integration, BRD example (part2)
-                        </a>
-                    </li>
                 </ul>
             </li>
 
@@ -355,9 +355,14 @@
                             data integration
                         </a>
                     </li>
-                    <li class="list-group-item tag-2">
+                    <li class="list-group-item tag-1">
                         <a href="http://datapfranc.github.io/tags/dataset.html">
                             dataset
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://datapfranc.github.io/tags/redshift.html">
+                            redshift
                         </a>
                     </li>
                 </ul>
