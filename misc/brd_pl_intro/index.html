@@ -192,7 +192,7 @@
 <span class="p">;</span>
 </pre></div>
 <h3 id="tuning-parameters-summary">Tuning parameters summary</h3>
-<p>The following table summarizes the choice of distribution style and sort key (not used at this point, but TODO later for optimization) for all tasbles.</p>
+<p>The following table summarizes the choice of distribution style and sort key (not used at this point, but TODO later for optimization) for all tables.</p>
 <table class="table table-hover table-striped">
 <thead>
 <tr>
@@ -214,12 +214,12 @@
 </tr>
 <tr>
 <td align="left">Dim_book</td>
-<td>note*</td>
+<td>note</td>
 <td>KEY (book_id)</td>
 </tr>
 <tr>
 <td align="left">Dim_date</td>
-<td>note*</td>
+<td>note</td>
 <td>ALL</td>
 </tr>
 <tr>
@@ -229,7 +229,7 @@
 </tr>
 <tr>
 <td align="left">Dim_mds</td>
-<td>note*</td>
+<td>note</td>
 <td>ALL</td>
 </tr>
 <tr>
@@ -244,7 +244,7 @@
 </tr>
 <tr>
 <td align="left">Dim_tag</td>
-<td>note*</td>
+<td>note</td>
 <td>ALL</td>
 </tr>
 <tr>
@@ -254,21 +254,12 @@
 </tr>
 <tr>
 <td align="left">Review</td>
-<td>note*</td>
+<td>note</td>
 <td>by key (book_id)</td>
-</tr>
-<tr>
-<td align="left">s</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td align="left">*these would be set following realistic data access usage</td>
-<td></td>
-<td></td>
 </tr>
 </tbody>
 </table>
+<p>note: these would be set following realistic data access usage</p>
 <p>Next step will be to populate it through Redshift load command and applying our business rules transformation logic. To be covered in a separate post.</p>
             </div>
 
